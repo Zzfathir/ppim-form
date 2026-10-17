@@ -1,0 +1,81 @@
+{
+  "common": {
+    "loading": "Memuat…",
+    "retry": "Coba lagi",
+    "cancel": "Batal",
+    "signOut": "Keluar",
+    "language": "Bahasa",
+    "account": "Akun",
+    "orgSuffix": "{department} · {org}",
+    "comingSoon": "Halaman ini sedang dibangun."
+  },
+  "roles": {
+    "respondent": "Responden",
+    "admin": "Admin",
+    "superadmin": "Superadmin"
+  },
+  "nav": {
+    "main": "Navigasi utama",
+    "myForms": "Formulir saya",
+    "templates": "Template",
+    "overview": "Ringkasan",
+    "registry": "Semua formulir",
+    "people": "Pengguna",
+    "departments": "Departemen",
+    "chapters": "Cabang",
+    "categories": "Kategori",
+    "adminTemplates": "Kelola template",
+    "settings": "Pengaturan",
+    "secretary": "Sekretariat",
+    "more": "Lainnya"
+  },
+  "login": {
+    "title": "Masuk ke {app}",
+    "subtitle": "Buat dan kelola formulir untuk {org}.",
+    "continueWithGoogle": "Lanjutkan dengan Google",
+    "redirecting": "Mengalihkan ke Google…",
+    "formNotice": "Formulir ini meminta Anda masuk agar jawaban Anda terhubung dengan akun Google Anda.",
+    "errorGeneric": "Gagal masuk. Silakan coba lagi.",
+    "privacy": "Kami hanya menggunakan nama dan email Google Anda."
+  },
+  "onboarding": {
+    "title": "Selamat datang di {app}",
+    "subtitle": "Satu langkah singkat sebelum mulai membuat formulir.",
+    "fullName": "Nama Anda",
+    "department": "Departemen",
+    "departmentPlaceholder": "Pilih departemen Anda",
+    "departmentHint": "Formulir Anda ditandai dengan departemen ini. Anda bisa mengubahnya per formulir.",
+    "chapter": "Cabang",
+    "optional": "opsional",
+    "chapterNone": "Tanpa cabang",
+    "submit": "Lanjutkan",
+    "submitting": "Menyimpan…",
+    "approvalNote": "Sekretaris akan menyetujui akun Anda. Sementara itu, Anda sudah bisa membuat draf.",
+    "errors": {
+      "invalid_name": "Silakan isi nama Anda.",
+      "invalid_department": "Silakan pilih departemen.",
+      "invalid_chapter": "Cabang tersebut sudah tidak tersedia.",
+      "already_onboarded": "Akun Anda sudah siap.",
+      "generic": "Terjadi kesalahan. Silakan coba lagi."
+    }
+  },
+  "banner": {
+    "pending": "Menunggu persetujuan — Anda bisa membuat draf, tetapi belum bisa menerbitkan.",
+    "suspended": "Akun admin Anda ditangguhkan. Hubungi sekretariat jika ini keliru."
+  },
+  "dashboard": {
+    "title": "Formulir saya",
+    "emptyTitle": "Belum ada formulir",
+    "emptyBody": "Formulir yang Anda buat akan muncul di sini."
+  },
+  "admin": {
+    "overviewTitle": "Ringkasan"
+  },
+  "errors": {
+    "title": "Terjadi kesalahan",
+    "body": "Silakan coba lagi. Jika terus terjadi, hubungi sekretariat.",
+    "notFoundTitle": "Halaman tidak ditemukan",
+    "notFoundBody": "Halaman yang Anda cari tidak ada.",
+    "backHome": "Kembali ke beranda"
+  }
+}

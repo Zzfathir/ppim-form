@@ -1,0 +1,81 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "signOut": "Sign out",
+    "language": "Language",
+    "account": "Account",
+    "orgSuffix": "{department} · {org}",
+    "comingSoon": "This page is being built."
+  },
+  "roles": {
+    "respondent": "Respondent",
+    "admin": "Admin",
+    "superadmin": "Superadmin"
+  },
+  "nav": {
+    "main": "Main navigation",
+    "myForms": "My forms",
+    "templates": "Templates",
+    "overview": "Overview",
+    "registry": "All forms",
+    "people": "People",
+    "departments": "Departments",
+    "chapters": "Chapters",
+    "categories": "Categories",
+    "adminTemplates": "Manage templates",
+    "settings": "Settings",
+    "secretary": "Secretary",
+    "more": "More"
+  },
+  "login": {
+    "title": "Sign in to {app}",
+    "subtitle": "Create and manage forms for {org}.",
+    "continueWithGoogle": "Continue with Google",
+    "redirecting": "Redirecting to Google…",
+    "formNotice": "This form asks you to sign in so your response can be linked to your Google account.",
+    "errorGeneric": "Sign-in didn't work. Please try again.",
+    "privacy": "We only use your Google name and email."
+  },
+  "onboarding": {
+    "title": "Welcome to {app}",
+    "subtitle": "One quick step before you start making forms.",
+    "fullName": "Your name",
+    "department": "Department",
+    "departmentPlaceholder": "Choose your department",
+    "departmentHint": "Your forms are tagged with this department. You can change it per form.",
+    "chapter": "Chapter",
+    "optional": "optional",
+    "chapterNone": "No chapter",
+    "submit": "Continue",
+    "submitting": "Saving…",
+    "approvalNote": "A secretary will approve your account. Meanwhile you can already build drafts.",
+    "errors": {
+      "invalid_name": "Please enter your name.",
+      "invalid_department": "Please choose a department.",
+      "invalid_chapter": "That chapter is no longer available.",
+      "already_onboarded": "Your account is already set up.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "banner": {
+    "pending": "Waiting for approval — you can build drafts but not publish.",
+    "suspended": "Your admin account is suspended. Contact the secretariat if this is a mistake."
+  },
+  "dashboard": {
+    "title": "My forms",
+    "emptyTitle": "No forms yet",
+    "emptyBody": "Forms you create will appear here."
+  },
+  "admin": {
+    "overviewTitle": "Overview"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "body": "Please try again. If it keeps happening, contact the secretariat.",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you're looking for doesn't exist.",
+    "backHome": "Back to home"
+  }
+}
