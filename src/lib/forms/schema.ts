@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULT_SCALE, QUESTION_TYPES, type QuestionSettings, type QuestionType } from "@/lib/questions";
+import { DEFAULT_SCALE, QUESTION_TYPES, type QuestionSettings, type QuestionType, type TemplateQuestion } from "@/lib/questions";
 
 export const LIMITS = {
   formTitle: 300,
@@ -99,5 +99,17 @@ export function toDraftQuestion(row: {
     required: row.required,
     options,
     settings: parsed.success ? parsed.data : {},
+  };
+}
+
+/** Templates store questions without ids (build prompt §4). */
+export function toTemplateQuestion(q: DraftQuestion): TemplateQuestion {
+  return {
+    type: q.type,
+    title: q.title,
+    description: q.description,
+    required: q.required,
+    options: q.options,
+    settings: q.settings,
   };
 }

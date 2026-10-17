@@ -100,7 +100,7 @@ export function ResponsesTable({ formId }: { formId: string }) {
       ) : data.rows.length === 0 ? (
         <EmptyState icon={SearchX} title={t("noMatchesTitle")} body={t("noMatchesBody")} />
       ) : (
-        <div className={cn("overflow-x-auto rounded-xl border bg-card shadow-xs transition-opacity", loading && "opacity-60")}>
+        <div className={cn("relative overflow-x-auto rounded-xl border bg-card shadow-xs transition-opacity", loading && "opacity-60")}>
           <table className="w-full min-w-max text-left text-sm">
             <thead className="border-b bg-muted/50">
               <tr>

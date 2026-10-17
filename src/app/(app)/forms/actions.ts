@@ -9,6 +9,7 @@ import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { saveFormSchema, toDraftQuestion, type SaveFormPayload } from "@/lib/forms/schema";
 import { toJson, type TemplateQuestion } from "@/lib/questions";
+import { errorCode } from "@/lib/action-errors";
 
 /**
  * Server actions for the builder and form lists. Each one runs as the signed-in
@@ -28,21 +29,6 @@ export type PublishProblem =
 export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string; problems?: PublishProblem[] };
 
 const formId = z.uuid();
-
-/** Maps a PostgREST/trigger error to a stable code. */
-function errorCode(error: { message?: string; code?: string } | null): string {
-  if (!error) return "unknown";
-  const known = [
-    "form_not_found",
-    "publish_blocked",
-    "publish_requires_active_account",
-    "invalid_status_transition",
-    "answered_question_type_locked",
-    "new_forms_are_drafts",
-    "not_allowed",
-  ];
-  return known.find((k) => error.message?.includes(k)) ?? (error.code === "42501" ? "forbidden" : "unknown");
-}
 
 async function requireEditor() {
   const profile = await getCurrentProfile();

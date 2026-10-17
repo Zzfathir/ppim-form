@@ -16,7 +16,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { AlertCircle, ArrowLeft, Check, CloudOff, CopyPlus, Eye, Loader2, Plus, Send, Share2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, CloudOff, CopyPlus, Eye, LayoutTemplate, Loader2, Plus, Send, Share2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { FormRenderer } from "@/components/form-renderer/form-renderer";
 import type { RenderForm } from "@/components/form-renderer/types";
 import { duplicateForm, publishForm, saveForm, setAcceptingResponses, type PublishProblem } from "@/app/(app)/forms/actions";
+import { saveFormAsTemplate } from "@/app/(app)/admin/actions";
 import type { Lookups, FormStatus, Option } from "@/lib/forms/queries";
 import { LIMITS, type DraftForm, type DraftQuestion, type SaveFormPayload } from "@/lib/forms/schema";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,8 @@ export type FormEditorProps = {
   ownerName: string | null;
   backHref: string;
   initialTab?: "questions" | "responses" | "settings";
+  /** Superadmins can save any form as a template (O9). */
+  canSaveTemplate?: boolean;
 };
 
 export function FormEditor(props: FormEditorProps) {
@@ -249,6 +252,30 @@ export function FormEditor(props: FormEditorProps) {
               {!readOnly && <SaveIndicator status={saveStatus} errorCode={errorCode} />}
             </div>
           </div>
+
+          {props.canSaveTemplate && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("saveAsTemplate")}
+                  disabled={busy}
+                  onClick={() =>
+                    startTransition(async () => {
+                      await flush();
+                      const res = await saveFormAsTemplate(formId);
+                      if (res.ok) router.push(`/admin/templates/${res.id}`);
+                      else reportError(res.error);
+                    })
+                  }
+                >
+                  <LayoutTemplate aria-hidden />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("saveAsTemplate")}</TooltipContent>
+            </Tooltip>
+          )}
 
           <Tooltip>
             <TooltipTrigger asChild>

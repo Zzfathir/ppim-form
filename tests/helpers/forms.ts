@@ -23,6 +23,8 @@ export async function createForm(opts: {
   status: FormStatus;
   title?: string;
   questions?: QuestionInsert[];
+  /** Backdating is only possible on insert (the trigger keeps created_at immutable afterwards). */
+  createdAt?: string;
 }): Promise<{ id: string; questionIds: string[] }> {
   const svc = serviceClient();
   const { data: form, error } = await svc
@@ -33,6 +35,7 @@ export async function createForm(opts: {
       category_id: opts.category,
       status: opts.status,
       title: opts.title ?? `Test form ${Math.random().toString(36).slice(2, 7)}`,
+      ...(opts.createdAt ? { created_at: opts.createdAt, published_at: opts.status === "draft" ? null : opts.createdAt } : {}),
     })
     .select("id")
     .single();

@@ -24,7 +24,7 @@ export default async function TemplatesPage() {
       <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <li className="flex flex-col rounded-2xl border border-dashed bg-card p-5">
           <div className="flex size-10 items-center justify-center rounded-full bg-brand-soft">
             <FilePlus2 className="size-5 text-brand" aria-hidden />

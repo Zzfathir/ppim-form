@@ -328,6 +328,22 @@ isOneToOne: false
             "admin_approval_required":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"admin_forms":
+{ Args: { "p_category"?: string,"p_chapter"?: string,"p_department"?: string,"p_desc"?: boolean,"p_from"?: string,"p_limit"?: number,"p_no_chapter"?: boolean,"p_offset"?: number,"p_owner"?: string,"p_query"?: string,"p_sort"?: string,"p_status"?: string,"p_to"?: string }; Returns: {
+              "category_name": string,"chapter_name": string,"created_at": string,"deleted_at": string,"department_color": string,"department_id": string,"department_name": string,"id": string,"last_response_at": string,"owner_email": string,"owner_id": string,"owner_name": string,"published_at": string,"response_count": number,"share_slug": string,"status": Database["public"]['Enums']["form_status"],"title": string,"total_count": number
+            }[]
+                           },
+"admin_overview":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"admin_people":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"created_at": string,"department_id": string,"department_name": string,"email": string,"forms_count": number,"full_name": string,"id": string,"open_forms_count": number,"role": Database["public"]['Enums']["user_role"],"status": Database["public"]['Enums']["user_status"]
+            }[]
+                           },
+"admin_usage":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "answered_question_ids":
 { Args: { "p_form_id": string }; Returns: string[]
                            },
@@ -392,6 +408,9 @@ isOneToOne: false
 "publish_problems":
 { Args: { "p_form_id": string }; Returns: (string)[]
                            },
+"require_superadmin":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "responses_page":
 { Args: { "p_desc"?: boolean,"p_form_id": string,"p_limit"?: number,"p_offset"?: number,"p_query"?: string,"p_sort"?: string }; Returns: {
               "answers": Json,"id": string,"respondent_email": string,"respondent_name": string,"submitted_at": string,"total_count": number
@@ -402,6 +421,9 @@ isOneToOne: false
                            },
 "soft_delete_form":
 { Args: { "p_form_id": string }; Returns: undefined
+                           },
+"transfer_forms":
+{ Args: { "p_from": string,"p_to": string }; Returns: number
                            }
           }
           Enums: {

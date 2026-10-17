@@ -56,6 +56,7 @@ export default async function FormBuilderPage({ params, searchParams }: PageProp
       ownerName={data.ownerName}
       backHref={profile.role === "superadmin" ? "/admin/forms" : "/dashboard"}
       initialTab={initialTab}
+      canSaveTemplate={profile.role === "superadmin" && profile.status === "active"}
     />
   );
 }

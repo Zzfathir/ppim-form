@@ -280,3 +280,67 @@ ambiguous, or overridden by the owner. Newest phase at the bottom.
 - **Archived forms** show no "Accepting responses" toggle. Restoring them is a superadmin action (Phase 6).
 - **Streaming and 404s:** the builder page streams behind its loading skeleton, so a form the user can't see
   renders the "Page not found" view with HTTP 200 (no form data is sent). The API endpoints return real 404s.
+
+## Phase 6 — Secretary pages
+
+- **Defense in depth:** every `/admin` page calls `requireSuperadmin()`, every secretary server action checks the
+  role, and every secretary RPC raises `forbidden` for non-superadmins. RLS and triggers still apply underneath.
+  The activity log is written by triggers, so it can't be skipped.
+- **Overview definitions:**
+  - **All-time KPIs:** total forms, open forms, total responses (soft-deleted forms excluded).
+  - **In-period KPIs:** forms created, responses received (shown as a hint), and departments active (a form
+    created or a response received in the period). Pending approvals is a link to People.
+  - **Charts:** forms per department/category/chapter count forms **created in the period**; each bar links to the
+    registry pre-filtered. Responses and forms over time are daily for periods of 92 days or less, otherwise
+    weekly (Monday weeks), in Malaysia time, with empty buckets shown.
+  - **Department table:** forms in period, forms all time, open now, responses in period, and last activity (the
+    latest form created/published or response received). It lists **every** active department, including those
+    with zero forms, plus archived departments that still have forms.
+  - The period filter changes everything except the all-time KPIs.
+- **Period filter:** 7 days, **30 days (default)**, this semester, or custom from/to dates (inclusive, max ~3
+  years), in Malaysia calendar days. **"This semester" starts on 1 February or 1 September**
+  (`src/config/app.ts`, `semesterStartMonths`), an assumption based on Malaysian public universities.
+  **Please confirm** with the secretariat; it's a one-line change.
+- **Charts are single-series** (see Phase 5): the time series use Recharts (2px line, light area, crosshair
+  tooltip, hidden data table for screen readers); counts by category use labelled bar lists.
+- **Registry** (`/admin/forms`):
+  - Filters live in the URL: department, chapter (including "No chapter"), category, status, creator (including
+    "Me"), created-date range, and title search.
+  - Sortable by every column. 50 rows per page, served by the server.
+  - **Export CSV** contains the whole filtered result (up to 5,000 rows) with a public link column.
+  - Deleted forms appear only under Status → "Deleted", where they can be opened and restored.
+  - A superadmin's own forms are found with Creator → "Me". "New form" is available here, since `/dashboard`
+    redirects superadmins to the overview.
+- **Form detail** (`/admin/forms/{id}`):
+  - Read-only Overview (details and answering settings), Questions (respondent view) and Responses (the same
+    panel as the builder).
+  - Actions: close/reopen; archive (an open form is closed first, then archived); restore from archive (back to
+    closed); change department/category/chapter; transfer owner (to a non-suspended admin); soft delete/restore;
+    save as template; open in builder (superadmins may edit any form).
+  - Publishing someone else's draft stays with its owner.
+- **People:**
+  - Pending admins are listed first with one-click Approve/Reject. **Reject** returns the person to `respondent`
+    (PRD §5.2), and they can apply again through onboarding.
+  - Suspend/restore, make superadmin / make regular admin, change department, transfer all forms.
+  - Transfer-all moves every form the person owns, including drafts and deleted ones, so the account can be
+    retired. Each form is logged.
+  - **Guards in the database:** a superadmin can't change their own role or status, and the last active
+    superadmin can't be demoted or suspended (yearly handover safety).
+  - A Supabase auth user who still owns forms can't be hard-deleted (foreign key); transfer their forms first.
+- **Departments / chapters / categories:**
+  - Add, edit (department color via a color picker) and archive. Categories are deactivated rather than archived.
+  - **Delete is offered only when nothing uses the entry**, and the foreign keys refuse it anyway.
+  - Archived entries stay on existing forms and reports, and can't be picked in onboarding or for new forms.
+    The builder shows them as "(archived)" when already selected.
+- **Templates:**
+  - The list shows category, question count, **usage count** (forms created from it) and a publish toggle.
+  - The editor reuses the builder's question cards, drag-and-drop and autosave.
+  - "Save as template" (from the builder for superadmins, or from the form detail page) creates an
+    **unpublished** copy and opens it.
+  - Deleting a template keeps the forms made from it (their `template_id` becomes null, so usage history is
+    lost); unpublishing is the gentler option.
+- **Settings:** the "Require approval for new admins" toggle (default on).
+- The **activity feed UI** (O10) is P1 and not built; entries are written from day one.
+- **Layout fix:** tables scroll inside `relative` wrappers. Without that, an absolutely positioned screen-reader
+  label inside a table escaped its scroll container and made the whole page scroll sideways on phones. All admin
+  pages were checked at 360 px.
