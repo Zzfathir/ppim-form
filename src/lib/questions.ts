@@ -10,7 +10,13 @@ export const QUESTION_TYPES = [
   "dropdown",
   "scale",
   "date",
+  "section",
 ] as const satisfies readonly QuestionType[];
+
+/** A "section" item starts a new page; it is layout, never answered. */
+export function isSection(q: { type: QuestionType }): boolean {
+  return q.type === "section";
+}
 
 export const CHOICE_TYPES: readonly QuestionType[] = ["single_choice", "multiple_choice", "dropdown"];
 

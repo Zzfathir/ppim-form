@@ -543,8 +543,8 @@
     "collectName": "Tanyakan nama responden",
     "collectNameHint": "Menambahkan kolom nama opsional. Jika tidak, jawaban bersifat anonim.",
     "confirmation": "Pesan konfirmasi",
-    "confirmationHint": "Ditampilkan setelah seseorang mengirim. Kosongkan untuk pesan bawaan.",
-    "confirmationPlaceholder": "Jawaban Anda telah direkam.",
+    "confirmationHint": "Ditampilkan setelah seseorang mengirim. Formulir baru diisi teks bawaan ini; ubah sesuka Anda.",
+    "confirmationPlaceholder": "Jawaban Anda telah direkam. Terima kasih sudah meluangkan waktu untuk mengisi formulir ini!",
     "settingsPresentation": "Setelah mengirim",
     "previewTitle": "Pratinjau",
     "previewNote": "Beginilah responden melihat formulir Anda. Tombol kirim dinonaktifkan di pratinjau.",
@@ -566,10 +566,20 @@
         "overlay": "Judul di banner"
       },
       "change": "Ganti",
-      "remove": "Hapus"
+      "remove": "Hapus",
+      "previewLabel": "Pratinjau — seperti yang dilihat responden"
     },
     "nameRequired": "Nama wajib diisi",
-    "nameRequiredHint": "Responden tidak bisa mengirim tanpa mengisi nama."
+    "nameRequiredHint": "Responden tidak bisa mengirim tanpa mengisi nama.",
+    "defaultConfirmation": "Jawaban Anda telah direkam. Terima kasih sudah meluangkan waktu untuk mengisi formulir ini!",
+    "addSection": "Tambah bagian",
+    "sectionLabel": "Halaman {page} dari {pages}",
+    "sectionPlaceholder": "Bagian tanpa judul",
+    "sectionTitle": "Judul bagian (halaman {page})",
+    "sectionDescription": "Deskripsi (opsional)",
+    "dragSection": "Seret untuk memindahkan bagian yang memulai halaman {page}",
+    "deleteSection": "Hapus pemisah sebelum halaman {page}",
+    "removeSection": "Hapus pemisah halaman"
   },
   "respond": {
     "requiredNote": "Menandakan pertanyaan wajib",
@@ -593,7 +603,10 @@
       "out_of_range": "Silakan pilih nilai pada skala",
       "invalid_date": "Silakan masukkan tanggal yang valid",
       "invalid": "Jawaban ini tidak valid"
-    }
+    },
+    "next": "Berikutnya",
+    "back": "Kembali",
+    "pageOf": "Halaman {current} dari {total}"
   },
   "publicForm": {
     "notFoundTitle": "Formulir tidak ditemukan",
@@ -604,7 +617,7 @@
     "needsLoginBody": "Formulir ini meminta Anda masuk dengan Google. Nama dan email Anda akan dicatat bersama jawaban Anda.",
     "alreadyTitle": "Anda sudah mengisi formulir ini",
     "alreadyBody": "Formulir ini hanya bisa diisi satu kali.",
-    "thankYouDefault": "Jawaban Anda telah direkam.",
+    "thankYouDefault": "Jawaban Anda telah direkam. Terima kasih sudah meluangkan waktu untuk mengisi formulir ini!",
     "signedInAs": "Masuk sebagai {email}",
     "recorded": "Nama dan email Anda akan dicatat bersama jawaban Anda.",
     "switchAccount": "Ganti akun",
@@ -615,7 +628,9 @@
       "needs_login": "Sesi masuk Anda berakhir. Silakan masuk lagi; jawaban Anda tetap tersimpan di halaman ini.",
       "network": "Gagal mengirim jawaban. Periksa koneksi lalu coba lagi — jawaban Anda tetap tersimpan.",
       "generic": "Terjadi kesalahan. Silakan coba lagi."
-    }
+    },
+    "thankYouTitle": "Terima kasih!",
+    "submitAnother": "Kirim jawaban lain"
   },
   "responses": {
     "count": "{count, plural, =0 {Belum ada jawaban} other {# jawaban}}",
@@ -658,5 +673,39 @@
       "deleted": "pertanyaan dihapus",
       "sheet": "Jawaban"
     }
+  },
+  "sheets": {
+    "pitch": "Kirim setiap jawaban ke Google Sheet di Drive Anda, langsung.",
+    "link": "Hubungkan ke Google Sheets",
+    "linked": "Terhubung ke Google Sheets",
+    "syncedAt": "Baris terakhir ditambahkan {when}",
+    "syncPending": "Menyinkronkan…",
+    "open": "Buka spreadsheet",
+    "syncNow": "Sinkronkan sekarang",
+    "unlink": "Putuskan",
+    "reconnect": "Hubungkan ulang Google",
+    "unlinkConfirm": "Berhenti mengirim jawaban ke spreadsheet ini? File tetap ada di Drive Anda dengan semua data sejauh ini.",
+    "linkedToast": "Spreadsheet dibuat — jawaban akan muncul di sana secara langsung",
+    "syncedToast": "Spreadsheet sudah terbaru",
+    "unlinkedToast": "Spreadsheet diputus",
+    "result": {
+      "cancelled": "Akses Google tidak diberikan, jadi spreadsheet tidak dibuat.",
+      "not_configured": "Google Sheets belum disiapkan di server ini.",
+      "forbidden": "Hanya pemilik formulir yang bisa menghubungkan spreadsheet.",
+      "scope_missing": "Izinkan PPIM Form membuat file di Google Drive Anda.",
+      "quota": "Google sedang sibuk. Coba lagi sebentar lagi.",
+      "failed": "Gagal membuat spreadsheet. Coba lagi."
+    },
+    "errors": {
+      "access_revoked": "Akses Google dicabut. Hubungkan ulang agar sinkronisasi berlanjut.",
+      "not_found": "Spreadsheet dihapus atau dipindah. Putuskan, lalu hubungkan lagi untuk membuat yang baru.",
+      "quota": "Google sedang sibuk; baris baru akan segera ditambahkan.",
+      "failed": "Sinkronisasi berhenti karena kesalahan. Coba Sinkronkan sekarang."
+    },
+    "colTimestamp": "Waktu",
+    "colName": "Nama",
+    "colEmail": "Email",
+    "colDeleted": "pertanyaan dihapus",
+    "spreadsheetName": "{title} (Jawaban)"
   }
 }

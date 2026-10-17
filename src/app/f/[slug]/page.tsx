@@ -102,6 +102,7 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
           requiresLogin: form.requiresLogin,
         }}
         questions={form.questions ?? []}
+        allowAnother={form.allowAnother}
         accountLine={
           form.requiresLogin && user?.email ? (
             <AccountLine

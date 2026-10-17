@@ -30,6 +30,8 @@ export type PublicForm =
       requiresLogin: boolean;
       collectName: boolean;
       nameRequired: boolean;
+      /** "Submit another response" is offered unless the form allows one response per account. */
+      allowAnother: boolean;
       /** Only present when state = "open". */
       questions?: RenderQuestion[];
     };
@@ -100,7 +102,7 @@ export async function loadPublicForm(db: Db, slug: string, user: Respondent): Pr
 
   if (state === "closed") {
     // Not accepting: only the title, department and banner (build prompt §7).
-    return { state, title: form.title, description: null, department, ...banner, requiresLogin: false, collectName: false, nameRequired: false };
+    return { state, title: form.title, description: null, department, ...banner, requiresLogin: false, collectName: false, nameRequired: false, allowAnother: false };
   }
   return {
     state,
@@ -111,6 +113,7 @@ export async function loadPublicForm(db: Db, slug: string, user: Respondent): Pr
     requiresLogin: form.requires_login,
     collectName: form.collect_name && !form.requires_login,
     nameRequired: form.collect_name && form.name_required && !form.requires_login,
+    allowAnother: !(form.requires_login && form.limit_one_response),
     questions: state === "open" ? await loadQuestions(db, form.id) : undefined,
   };
 }
@@ -126,7 +129,7 @@ export const submitSchema = z.object({
 });
 
 export type SubmitOutcome =
-  | { status: 200; body: { ok: true; message: string | null } }
+  | { status: 200; body: { ok: true; message: string | null }; formId?: string }
   | { status: 400; body: { ok: false; error: "invalid_request" } }
   | { status: 401; body: { ok: false; error: "needs_login" } }
   | { status: 404; body: { ok: false; error: "not_found" } }
@@ -198,5 +201,5 @@ export async function submitPublicResponse(
     if (error.code === "23505") return { status: 409, body: { ok: false, error: "already" } };
     throw new Error(`response insert failed: ${error.message}`);
   }
-  return { status: 200, body: { ok: true, message: form.confirmation_message } };
+  return { status: 200, body: { ok: true, message: form.confirmation_message }, formId: form.id };
 }

@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getClientIp, getRespondent } from "@/lib/public-form/request";
 import { submitPublicResponse } from "@/lib/public-form/service";
+import { syncAfterSubmit } from "@/lib/google/server";
 
 const MAX_BODY_BYTES = 256 * 1024;
 
@@ -36,5 +37,10 @@ export async function POST(request: Request, ctx: RouteContext<"/api/public/form
     user: await getRespondent(),
     ip: await getClientIp(),
   });
+  // Linked Google Sheet: append the new row after the response is sent (never delays the respondent).
+  if (outcome.status === 200 && outcome.formId) {
+    const formId = outcome.formId;
+    after(() => syncAfterSubmit(formId));
+  }
   return NextResponse.json(outcome.body, { status: outcome.status, headers: noStore });
 }

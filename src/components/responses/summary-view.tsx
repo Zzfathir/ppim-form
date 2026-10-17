@@ -31,9 +31,11 @@ export function SummaryView({
   const stats = new Map(summary.questions.map((s) => [s.question_id, s]));
   return (
     <div className="space-y-3">
-      {questions.map((q, i) => (
-        <QuestionSummary key={q.id} index={i} question={q} stats={stats.get(q.id)} onShowTable={onShowTable} />
-      ))}
+      {questions
+        .filter((q) => q.type !== "section")
+        .map((q, i) => (
+          <QuestionSummary key={q.id} index={i} question={q} stats={stats.get(q.id)} onShowTable={onShowTable} />
+        ))}
     </div>
   );
 }

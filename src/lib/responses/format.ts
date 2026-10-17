@@ -60,7 +60,7 @@ export function exportTable(columns: ResponseColumn[], rows: ResponseRow[], labe
 export type Cell = string | number;
 
 /** Scale answers stay numeric (so spreadsheets can average them); everything else is text. */
-function exportCell(column: ResponseColumn, value: unknown): Cell {
+export function exportCell(column: ResponseColumn, value: unknown): Cell {
   if (column.type === "scale" && typeof value === "number") return value;
   return formatAnswer(value);
 }

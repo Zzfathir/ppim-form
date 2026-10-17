@@ -49,6 +49,7 @@ function isEmpty(value: unknown): boolean {
 }
 
 function validateOne(q: AnswerQuestion, raw: unknown): { error?: AnswerError; value?: AnswerValue } {
+  if (q.type === "section") return {}; // page break, nothing to answer
   if (isEmpty(raw)) return q.required ? { error: "required" } : {};
   const options = (q.options ?? []).filter((o) => o.trim() !== "");
   const allowOther = q.type !== "dropdown" && q.settings.allow_other === true;

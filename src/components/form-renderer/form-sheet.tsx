@@ -34,7 +34,7 @@ export function FormSheet({
   const overlay = form.bannerUrl && form.bannerStyle === "overlay";
 
   return (
-    <article className={cn("mx-auto w-full max-w-[720px] overflow-hidden rounded-2xl border bg-card shadow-sm", className)}>
+    <article className={cn("mx-auto w-full max-w-[720px] overflow-hidden rounded-xl border bg-card shadow-sm", className)}>
       {form.bannerUrl && form.bannerStyle === "edge" && (
         // eslint-disable-next-line @next/next/no-img-element -- remote Storage image, sized by CSS
         <img src={form.bannerUrl} alt="" className="aspect-[4/1] w-full object-cover" />
@@ -42,7 +42,7 @@ export function FormSheet({
       {form.bannerUrl && form.bannerStyle === "inset" && (
         <div className="px-5 pt-5 sm:px-8 sm:pt-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={form.bannerUrl} alt="" className="aspect-[3/1] w-full rounded-xl object-cover" />
+          <img src={form.bannerUrl} alt="" className="aspect-[3/1] w-full rounded-lg object-cover" />
         </div>
       )}
       {overlay && (

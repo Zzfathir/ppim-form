@@ -274,14 +274,14 @@ function ScaleField({
           <label
             key={v}
             className={cn(
-              "relative flex size-11 cursor-pointer items-center justify-center rounded-full border text-sm font-semibold tabular-nums transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+              "relative flex size-11 cursor-pointer items-center justify-center rounded-md border text-sm font-semibold tabular-nums transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
               selected === v
                 ? "border-[var(--form-accent,var(--brand-accent))] bg-[var(--form-accent,var(--brand-accent))] text-white"
                 : "hover:border-foreground/40 hover:bg-muted/60",
             )}
           >
             {/* The real radio covers the pill invisibly: clickable, focusable and announced as "4". */}
-            <RadioGroupItem value={v} className="absolute inset-0 size-full cursor-pointer rounded-full border-0 opacity-0" />
+            <RadioGroupItem value={v} className="absolute inset-0 size-full cursor-pointer rounded-md border-0 opacity-0" />
             {v}
           </label>
         ))}

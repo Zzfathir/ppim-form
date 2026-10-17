@@ -17,7 +17,7 @@ export async function getResponseColumns(db: Db, formId: string): Promise<Respon
   if (error) throw new Error(`questions lookup failed: ${error.message}`);
   const answeredIds = new Set((answered ?? []) as string[]);
   return questions
-    .filter((q) => !q.is_deleted || answeredIds.has(q.id))
+    .filter((q) => q.type !== "section" && (!q.is_deleted || answeredIds.has(q.id)))
     .map((q) => ({ id: q.id, title: q.title, type: q.type, deleted: q.is_deleted }));
 }
 

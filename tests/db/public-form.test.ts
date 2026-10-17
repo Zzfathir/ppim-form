@@ -68,6 +68,7 @@ describe("loadPublicForm states", () => {
     const res = await loadPublicForm(db(), f.slug, null);
     expect(res.state).toBe("open");
     expect(Object.keys(res).sort()).toEqual([
+      "allowAnother",
       "bannerStyle",
       "bannerUrl",
       "collectName",
@@ -112,7 +113,7 @@ describe("submitPublicResponse", () => {
       user: asUser(), // a session on a no-login form is ignored too
       ip: ip(),
     });
-    expect(res).toEqual({ status: 200, body: { ok: true, message: "Sampai jumpa!" } });
+    expect(res).toMatchObject({ status: 200, body: { ok: true, message: "Sampai jumpa!" } });
     const [row] = await responsesOf(f.id);
     expect(row).toMatchObject({ respondent_id: null, respondent_email: null, respondent_name: null, dedupe_key: null });
     expect(row.answers).toEqual({ ...f.answers, [f.questionIds[2]]: 4 });

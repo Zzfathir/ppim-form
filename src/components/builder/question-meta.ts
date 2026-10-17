@@ -1,5 +1,6 @@
 import {
   AlignLeft,
+  BetweenHorizontalStart,
   Calendar,
   CircleChevronDown,
   CircleDot,
@@ -19,6 +20,7 @@ export const QUESTION_ICONS: Record<QuestionType, LucideIcon> = {
   dropdown: CircleChevronDown,
   scale: GitCommitHorizontal,
   date: Calendar,
+  section: BetweenHorizontalStart,
 };
 
 /** Grouped like Google Forms' type menu. */
@@ -36,7 +38,8 @@ export type QuestionIssue = "question_untitled" | "choice_needs_options";
  */
 export function localProblems(form: DraftForm, questions: DraftQuestion[]) {
   const issues: Record<string, QuestionIssue> = {};
-  for (const q of questions) {
+  const answerable = questions.filter((q) => q.type !== "section");
+  for (const q of answerable) {
     if (q.title.trim() === "") issues[q.id] = "question_untitled";
     else if (
       (q.type === "single_choice" || q.type === "multiple_choice" || q.type === "dropdown") &&
@@ -47,7 +50,7 @@ export function localProblems(form: DraftForm, questions: DraftQuestion[]) {
   const codes: string[] = [];
   if (!form.department_id) codes.push("department_required");
   if (!form.category_id) codes.push("category_required");
-  if (questions.length === 0) codes.push("no_questions");
+  if (answerable.length === 0) codes.push("no_questions");
   if (Object.values(issues).includes("question_untitled")) codes.push("question_untitled");
   if (Object.values(issues).includes("choice_needs_options")) codes.push("choice_needs_options");
   return { codes, issues };

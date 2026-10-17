@@ -84,7 +84,7 @@
   --chart-6: var(--brand-chart-6);
   --chart-7: var(--brand-chart-7);
   --chart-8: var(--brand-chart-8);
-  --radius: 0.625rem;
+  --radius: 0.25rem; /* 4px buttons/inputs; cards and the form sheet scale up to ~6–7px (owner: less rounded) */
   --sidebar: var(--brand-surface);
   --sidebar-foreground: var(--brand-ink);
   --sidebar-primary: var(--brand-primary);

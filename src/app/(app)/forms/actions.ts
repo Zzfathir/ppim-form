@@ -73,6 +73,7 @@ export async function createForm(formData: FormData) {
       template_id: templateId,
       title,
       description,
+      confirmation_message: t("defaultConfirmation"),
     })
     .select("id")
     .single();

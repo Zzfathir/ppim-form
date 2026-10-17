@@ -14,14 +14,18 @@ export function PublicFormClient({
   form,
   questions,
   accountLine,
+  allowAnother,
 }: {
   slug: string;
   form: RenderForm;
   questions: RenderQuestion[];
   accountLine: React.ReactNode;
+  allowAnother: boolean;
 }) {
   const t = useTranslations("publicForm");
   const [done, setDone] = useState<Done | null>(null);
+  // Bumped by "Submit another response" so the form starts empty again.
+  const [attempt, setAttempt] = useState(0);
 
   async function submit(payload: SubmitPayload): Promise<SubmitResult> {
     let res: Response;
@@ -64,10 +68,25 @@ export function PublicFormClient({
         <FormSheet form={form} showDescription={false}>
           <div className="border-t px-5 py-6 sm:px-8">
             {done.kind === "thanks" && (
-              <p className="flex items-start gap-2 text-[15px] whitespace-pre-wrap">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
-                {done.message || t("thankYouDefault")}
-              </p>
+              <>
+                <h2 className="flex items-center gap-2 text-lg font-bold">
+                  <CheckCircle2 className="size-5 shrink-0 text-success" aria-hidden />
+                  {t("thankYouTitle")}
+                </h2>
+                <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-wrap text-foreground/85">{done.message || t("thankYouDefault")}</p>
+                {allowAnother && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDone(null);
+                      setAttempt((n) => n + 1);
+                    }}
+                    className="mt-5 text-sm font-semibold text-brand underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+                  >
+                    {t("submitAnother")}
+                  </button>
+                )}
+              </>
             )}
             {done.kind === "already" && (
               <>
@@ -85,8 +104,8 @@ export function PublicFormClient({
   return (
     <>
       {/* Outside the response <form>: the account line contains its own sign-out form. */}
-      {accountLine && <div className="mx-auto mb-3 w-full max-w-[720px] rounded-2xl border bg-card px-5 pb-4 shadow-sm sm:px-8 [&>div]:mt-4">{accountLine}</div>}
-      <FormRenderer form={form} questions={questions} onSubmit={submit} />
+      {accountLine && <div className="mx-auto mb-3 w-full max-w-[720px] rounded-xl border bg-card px-5 pb-4 shadow-sm sm:px-8 [&>div]:mt-4">{accountLine}</div>}
+      <FormRenderer key={attempt} form={form} questions={questions} onSubmit={submit} />
     </>
   );
 }

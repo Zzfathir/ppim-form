@@ -15,6 +15,7 @@ import {
   type BannerStyle,
 } from "@/lib/forms/banner";
 import { cn } from "@/lib/utils";
+import { FormSheet } from "@/components/form-renderer/form-sheet";
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp"];
 const RAW_LIMIT = 20 * 1024 * 1024; // before resizing
@@ -41,11 +42,16 @@ export function BannerPicker({
   path,
   style,
   onChange,
+  title,
+  department,
 }: {
   formId: string;
   path: string | null;
   style: BannerStyle;
   onChange: (patch: { banner_path?: string | null; banner_style?: BannerStyle }) => void;
+  /** Used for the live preview, which renders exactly what respondents see. */
+  title: string;
+  department: { name: string; color: string | null } | null;
 }) {
   const t = useTranslations("builder.banner");
   const input = useRef<HTMLInputElement>(null);
@@ -111,9 +117,25 @@ export function BannerPicker({
   return (
     <div className="space-y-3">
       {fileInput}
-      <div className="relative overflow-hidden rounded-xl border">
-        {/* eslint-disable-next-line @next/next/no-img-element -- remote Storage image */}
-        <img src={url} alt={t("previewAlt")} className="aspect-[4/1] w-full object-cover" />
+      <div className="relative rounded-lg border bg-background p-2">
+        <p className="mb-1.5 px-1 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">{t("previewLabel")}</p>
+        {/* Live preview: the same sheet header respondents get, in the chosen style. */}
+        <div role="img" aria-label={t("previewAlt")} className="pointer-events-none select-none">
+          <div aria-hidden>
+            <FormSheet
+              form={{
+                title: title || "—",
+                description: null,
+                departmentName: department?.name ?? null,
+                departmentColor: department?.color ?? null,
+                bannerUrl: url,
+                bannerStyle: style,
+              }}
+              showDescription={false}
+              className="max-w-none shadow-none"
+            />
+          </div>
+        </div>
         {uploading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/70">
             <Loader2 className="size-5 animate-spin" aria-label={t("uploading")} />

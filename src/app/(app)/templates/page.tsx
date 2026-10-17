@@ -40,7 +40,9 @@ export default async function TemplatesPage() {
     description: r.description,
     category: r.categories?.name ?? null,
     department: r.departments ? { name: r.departments.name, color: r.departments.color } : null,
-    questions: Array.isArray(r.questions) ? (r.questions as TemplateQuestion[]).map((q) => q.title) : [],
+    questions: Array.isArray(r.questions)
+      ? (r.questions as TemplateQuestion[]).filter((q) => q.type !== "section").map((q) => q.title)
+      : [],
     creatorName: r.created_by ? (names.get(r.created_by) ?? null) : null,
     shareCount: shareCount.get(r.id) ?? 0,
   });

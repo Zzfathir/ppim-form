@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { getSummary, type Summary } from "@/app/(app)/forms/[id]/responses-actions";
 import { ResponsesTable } from "./responses-table";
 import { SummaryView } from "./summary-view";
+import { SheetsBar } from "./sheets-bar";
 
 /** The builder's Responses tab: Summary / table toggle and export. Loads when opened. */
 export function ResponsesPanel({
@@ -70,11 +71,17 @@ export function ResponsesPanel({
   }
 
   if (summary.total === 0) {
-    return <EmptyState icon={Inbox} title={t("emptyTitle")} body={isDraft ? t("emptyDraftBody") : t("emptyBody")} />;
+    return (
+      <div className="space-y-3">
+        <SheetsBar formId={formId} />
+        <EmptyState icon={Inbox} title={t("emptyTitle")} body={isDraft ? t("emptyDraftBody") : t("emptyBody")} />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-3">
+      <SheetsBar formId={formId} />
       <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-5 py-4 shadow-xs">
         <h2 className="mr-auto font-heading text-xl font-bold">{t("count", { count: summary.total })}</h2>
         <div role="group" aria-label={t("viewLabel")} className="inline-flex rounded-lg border p-0.5 text-sm">

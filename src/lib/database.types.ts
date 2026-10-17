@@ -105,6 +105,44 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"form_sheets": {
+                  Row: {
+                    "columns": NonNullable<Json>,"created_at": string,"form_id": string,"last_error": string | null,"last_synced_at": string | null,"linked_by": string | null,"spreadsheet_id": string,"spreadsheet_url": string,"status": string,"sync_lock_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "columns"?: NonNullable<Json>,"created_at"?: string,"form_id": string,"last_error"?: string | null,"last_synced_at"?: string | null,"linked_by"?: string | null,"spreadsheet_id": string,"spreadsheet_url": string,"status"?: string,"sync_lock_until"?: string | null
+                  }
+                  Update: {
+                    "columns"?: NonNullable<Json>,"created_at"?: string,"form_id"?: string,"last_error"?: string | null,"last_synced_at"?: string | null,"linked_by"?: string | null,"spreadsheet_id"?: string,"spreadsheet_url"?: string,"status"?: string,"sync_lock_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "form_sheets_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: true
+      referencedRelation: "form_stats"
+      referencedColumns: ["form_id"]
+    },{
+      foreignKeyName: "form_sheets_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: true
+      referencedRelation: "forms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_sheets_linked_by_fkey"
+      columns: ["linked_by"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_sheets_linked_by_fkey"
+      columns: ["linked_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"forms": {
                   Row: {
                     "banner_path": string | null,"banner_style": string,"category_id": string | null,"chapter_id": string | null,"closed_at": string | null,"closes_at": string | null,"collect_name": boolean,"confirmation_message": string | null,"created_at": string,"deleted_at": string | null,"department_id": string | null,"description": string | null,"id": string,"internal_note": string | null,"limit_one_response": boolean,"name_required": boolean,"owner_id": string,"published_at": string | null,"requires_login": boolean,"share_slug": string,"status": Database["public"]['Enums']["form_status"],"template_id": string | null,"theme_color": string,"title": string,"updated_at": string
@@ -152,6 +190,32 @@ isOneToOne: false
       columns: ["template_id"]
 isOneToOne: false
       referencedRelation: "templates"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"google_connections": {
+                  Row: {
+                    "created_at": string,"google_email": string | null,"profile_id": string,"refresh_token_enc": string,"scopes": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"google_email"?: string | null,"profile_id": string,"refresh_token_enc": string,"scopes": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"google_email"?: string | null,"profile_id"?: string,"refresh_token_enc"?: string,"scopes"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "google_connections_profile_id_fkey"
+      columns: ["profile_id"]
+isOneToOne: true
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "google_connections_profile_id_fkey"
+      columns: ["profile_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -223,14 +287,14 @@ isOneToOne: false
                   ]
                 },"responses": {
                   Row: {
-                    "answers": NonNullable<Json>,"dedupe_key": string | null,"form_id": string,"id": string,"respondent_email": string | null,"respondent_id": string | null,"respondent_name": string | null,"submitted_at": string
+                    "answers": NonNullable<Json>,"dedupe_key": string | null,"form_id": string,"id": string,"respondent_email": string | null,"respondent_id": string | null,"respondent_name": string | null,"sheet_synced_at": string | null,"submitted_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "answers": NonNullable<Json>,"dedupe_key"?: string | null,"form_id": string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"submitted_at"?: string
+                    "answers": NonNullable<Json>,"dedupe_key"?: string | null,"form_id": string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"sheet_synced_at"?: string | null,"submitted_at"?: string
                   }
                   Update: {
-                    "answers"?: NonNullable<Json>,"dedupe_key"?: string | null,"form_id"?: string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"submitted_at"?: string
+                    "answers"?: NonNullable<Json>,"dedupe_key"?: string | null,"form_id"?: string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"sheet_synced_at"?: string | null,"submitted_at"?: string
                   }
                   Relationships: [
                     {
@@ -415,6 +479,9 @@ isOneToOne: false
 "can_view_template":
 { Args: { "p_template_id": string }; Returns: boolean
                            },
+"claim_sheet_sync":
+{ Args: { "p_form_id": string,"p_seconds"?: number }; Returns: boolean
+                           },
 "complete_onboarding":
 { Args: { "p_chapter_id"?: string,"p_department_id": string,"p_full_name": string }; Returns: {
               "avatar_url": string | null,
@@ -458,6 +525,9 @@ isOneToOne: false
 "is_staff":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"is_staff_profile":
+{ Args: { "p_profile_id": string }; Returns: boolean
+                           },
 "is_superadmin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -497,7 +567,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "form_status": "draft"|"open"|"closed"|"archived","question_type": "short_text"|"paragraph"|"single_choice"|"multiple_choice"|"dropdown"|"scale"|"date","user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
+            "form_status": "draft"|"open"|"closed"|"archived","question_type": "short_text"|"paragraph"|"single_choice"|"multiple_choice"|"dropdown"|"scale"|"date"|"section","user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -617,7 +687,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "form_status": ["draft", "open", "closed", "archived"],"question_type": ["short_text", "paragraph", "single_choice", "multiple_choice", "dropdown", "scale", "date"],"user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
+            "form_status": ["draft", "open", "closed", "archived"],"question_type": ["short_text", "paragraph", "single_choice", "multiple_choice", "dropdown", "scale", "date", "section"],"user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
           }
         }
 } as const

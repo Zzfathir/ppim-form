@@ -16,7 +16,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { AlertCircle, ArrowLeft, Check, CloudOff, CopyPlus, Eye, LayoutTemplate, Loader2, Plus, Send, Share2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, BetweenHorizontalStart, Check, CloudOff, CopyPlus, Eye, LayoutTemplate, Loader2, Plus, Send, Share2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { BannerPicker } from "./banner-picker";
 import { PreviewDialog } from "./preview-dialog";
 import { QuestionCard } from "./question-card";
+import { SectionCard } from "./section-card";
 import { localProblems } from "./question-meta";
 import { SettingRow, SettingsPanel } from "./settings-panel";
 import { ShareDialog } from "./share-dialog";
@@ -125,6 +126,34 @@ export function FormEditor(props: FormEditorProps) {
       settings: {},
     });
   }
+
+  function addSection() {
+    if (questions.length >= LIMITS.questions) return;
+    insertAfterActive({
+      id: crypto.randomUUID(),
+      type: "section",
+      title: "",
+      description: null,
+      required: false,
+      options: null,
+      settings: {},
+    });
+  }
+
+  // Page numbers for section cards: a page starts at each section (items before the first one form page 1).
+  const pageInfo = useMemo(() => {
+    const pageOf = new Map<string, number>();
+    const numberOf = new Map<string, number>();
+    let page = questions.length > 0 && questions[0].type === "section" ? 0 : 1;
+    let n = 0;
+    for (const q of questions) {
+      if (q.type === "section") {
+        page += 1;
+        pageOf.set(q.id, page);
+      } else numberOf.set(q.id, n++);
+    }
+    return { pageOf, numberOf, pages: Math.max(1, page) };
+  }, [questions]);
 
   function duplicateQuestion(q: DraftQuestion) {
     if (questions.length >= LIMITS.questions) return;
@@ -407,9 +436,20 @@ export function FormEditor(props: FormEditorProps) {
                     <div className="space-y-3">
                       {questions.map((q, i) => (
                         <div key={q.id} id={`question-${q.id}`} className="scroll-mt-32">
+                          {q.type === "section" ? (
+                            <SectionCard
+                              question={q}
+                              page={pageInfo.pageOf.get(q.id) ?? 1}
+                              pages={pageInfo.pages}
+                              active={activeId === q.id}
+                              onActivate={() => setActiveId(q.id)}
+                              onChange={(patch) => patchQuestion(q.id, patch)}
+                              onDelete={() => deleteQuestion(q.id)}
+                            />
+                          ) : (
                           <QuestionCard
                             question={q}
-                            index={i}
+                            index={pageInfo.numberOf.get(q.id) ?? i}
                             active={activeId === q.id}
                             typeLocked={answered.has(q.id)}
                             issue={showProblems ? local.issues[q.id] : undefined}
@@ -419,6 +459,7 @@ export function FormEditor(props: FormEditorProps) {
                             onDuplicate={() => duplicateQuestion(q)}
                             onDelete={() => deleteQuestion(q.id)}
                           />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -427,10 +468,14 @@ export function FormEditor(props: FormEditorProps) {
               )}
 
               {questions.length > 0 && (
-                <div className="flex justify-center pt-2">
+                <div className="flex flex-wrap justify-center gap-2 pt-2">
                   <Button variant="outline" onClick={addQuestion}>
                     <Plus aria-hidden />
                     {t("addQuestion")}
+                  </Button>
+                  <Button variant="outline" onClick={addSection}>
+                    <BetweenHorizontalStart aria-hidden />
+                    {t("addSection")}
                   </Button>
                 </div>
               )}
@@ -498,7 +543,17 @@ function HeaderCard({
     <section className="overflow-hidden rounded-xl border bg-card shadow-xs" aria-label={t("formTitle")}>
       <div className="h-2.5 bg-brand" aria-hidden />
       <div className="space-y-3 p-4 sm:p-6">
-        <BannerPicker formId={formId} path={form.banner_path} style={form.banner_style} onChange={onChange} />
+        <BannerPicker
+          formId={formId}
+          path={form.banner_path}
+          style={form.banner_style}
+          onChange={onChange}
+          title={form.title}
+          department={(() => {
+            const d = lookups.departments.find((x) => x.id === form.department_id);
+            return d ? { name: d.name, color: d.color ?? null } : null;
+          })()}
+        />
         <Textarea
           value={form.title}
           onChange={(e) => onChange({ title: e.target.value })}

@@ -543,8 +543,8 @@
     "collectName": "Ask for the respondent's name",
     "collectNameHint": "Adds an optional name field. Otherwise responses are anonymous.",
     "confirmation": "Confirmation message",
-    "confirmationHint": "Shown after someone submits. Leave empty for the default message.",
-    "confirmationPlaceholder": "Your response has been recorded.",
+    "confirmationHint": "Shown after someone submits. New forms start with this default; change it to anything you like.",
+    "confirmationPlaceholder": "Your response has been recorded. Thank you for taking the time to fill in this form!",
     "settingsPresentation": "After submitting",
     "previewTitle": "Preview",
     "previewNote": "This is how respondents see your form. Submitting is disabled in preview.",
@@ -566,10 +566,20 @@
         "overlay": "Title on banner"
       },
       "change": "Change",
-      "remove": "Remove"
+      "remove": "Remove",
+      "previewLabel": "Preview — as respondents see it"
     },
     "nameRequired": "Name is required",
-    "nameRequiredHint": "Respondents can't submit without filling in their name."
+    "nameRequiredHint": "Respondents can't submit without filling in their name.",
+    "defaultConfirmation": "Your response has been recorded. Thank you for taking the time to fill in this form!",
+    "addSection": "Add section",
+    "sectionLabel": "Page {page} of {pages}",
+    "sectionPlaceholder": "Untitled section",
+    "sectionTitle": "Section title (page {page})",
+    "sectionDescription": "Description (optional)",
+    "dragSection": "Drag to move the section that starts page {page}",
+    "deleteSection": "Remove the page break before page {page}",
+    "removeSection": "Remove page break"
   },
   "respond": {
     "requiredNote": "Indicates required question",
@@ -593,7 +603,10 @@
       "out_of_range": "Please choose a value on the scale",
       "invalid_date": "Please enter a valid date",
       "invalid": "This answer isn't valid"
-    }
+    },
+    "next": "Next",
+    "back": "Back",
+    "pageOf": "Page {current} of {total}"
   },
   "publicForm": {
     "notFoundTitle": "Form not found",
@@ -604,7 +617,7 @@
     "needsLoginBody": "This form asks you to sign in with Google. Your name and email will be recorded with your response.",
     "alreadyTitle": "You've already responded",
     "alreadyBody": "You can only fill in this form once.",
-    "thankYouDefault": "Your response has been recorded.",
+    "thankYouDefault": "Your response has been recorded. Thank you for taking the time to fill in this form!",
     "signedInAs": "Signed in as {email}",
     "recorded": "Your name and email will be recorded with your response.",
     "switchAccount": "Switch account",
@@ -615,7 +628,9 @@
       "needs_login": "Your sign-in expired. Please sign in again; your answers are kept on this page.",
       "network": "Couldn't send your response. Check your connection and try again — your answers are kept.",
       "generic": "Something went wrong. Please try again."
-    }
+    },
+    "thankYouTitle": "Thank you!",
+    "submitAnother": "Submit another response"
   },
   "responses": {
     "count": "{count, plural, =0 {No responses} one {# response} other {# responses}}",
@@ -658,5 +673,39 @@
       "deleted": "deleted question",
       "sheet": "Responses"
     }
+  },
+  "sheets": {
+    "pitch": "Send every response to a Google Sheet in your Drive, live.",
+    "link": "Link to Google Sheets",
+    "linked": "Linked to Google Sheets",
+    "syncedAt": "Last row added {when}",
+    "syncPending": "Syncing…",
+    "open": "Open spreadsheet",
+    "syncNow": "Sync now",
+    "unlink": "Unlink",
+    "reconnect": "Reconnect Google",
+    "unlinkConfirm": "Stop sending responses to this spreadsheet? It stays in your Drive with everything written so far.",
+    "linkedToast": "Spreadsheet created — responses will appear there live",
+    "syncedToast": "Spreadsheet is up to date",
+    "unlinkedToast": "Spreadsheet unlinked",
+    "result": {
+      "cancelled": "Google access wasn't granted, so no spreadsheet was created.",
+      "not_configured": "Google Sheets isn't set up on this server yet.",
+      "forbidden": "Only the form's owner can link a spreadsheet.",
+      "scope_missing": "Please allow PPIM Form to create files in your Google Drive.",
+      "quota": "Google is busy right now. Try again in a minute.",
+      "failed": "Couldn't create the spreadsheet. Try again."
+    },
+    "errors": {
+      "access_revoked": "Google access was removed. Reconnect to keep syncing.",
+      "not_found": "The spreadsheet was deleted or moved. Unlink, then link again to create a new one.",
+      "quota": "Google is busy; new rows will be added shortly.",
+      "failed": "Syncing stopped because of an error. Try Sync now."
+    },
+    "colTimestamp": "Timestamp",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colDeleted": "deleted question",
+    "spreadsheetName": "{title} (Responses)"
   }
 }
