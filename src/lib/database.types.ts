@@ -207,6 +207,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"rate_limit_hits": {
+                  Row: {
+                    "hits": number,"key": string,"window_start": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "hits"?: number,"key": string,"window_start": string
+                  }
+                  Update: {
+                    "hits"?: number,"key"?: string,"window_start"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"responses": {
                   Row: {
                     "answers": NonNullable<Json>,"dedupe_key": string | null,"form_id": string,"id": string,"respondent_email": string | null,"respondent_id": string | null,"respondent_name": string | null,"submitted_at": string
@@ -353,6 +367,9 @@ isOneToOne: false
                            },
 "generate_share_slug":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"hit_rate_limit":
+{ Args: { "p_key": string,"p_limit": number,"p_window_seconds": number }; Returns: boolean
                            },
 "is_active_or_pending_staff":
 { Args: Record<PropertyKey, never>; Returns: boolean

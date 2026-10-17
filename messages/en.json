@@ -266,5 +266,27 @@
       "invalid_date": "Please enter a valid date",
       "invalid": "This answer isn't valid"
     }
+  },
+  "publicForm": {
+    "notFoundTitle": "Form not found",
+    "notFoundBody": "This link doesn't lead to a form. It may have been mistyped or the form was removed.",
+    "closedBody": "This form is no longer accepting responses.",
+    "closedHint": "Contact the organiser if you think this is a mistake.",
+    "needsLoginTitle": "Sign in to continue",
+    "needsLoginBody": "This form asks you to sign in with Google. Your name and email will be recorded with your response.",
+    "alreadyTitle": "You've already responded",
+    "alreadyBody": "You can only fill in this form once.",
+    "thankYouDefault": "Your response has been recorded.",
+    "signedInAs": "Signed in as {email}",
+    "recorded": "Your name and email will be recorded with your response.",
+    "switchAccount": "Switch account",
+    "poweredBy": "Made with {app}",
+    "errors": {
+      "rate_limited": "Too many submissions from your network. Please wait a few minutes and try again.",
+      "closed": "This form stopped accepting responses while you were filling it in.",
+      "needs_login": "Your sign-in expired. Please sign in again; your answers are kept on this page.",
+      "network": "Couldn't send your response. Check your connection and try again — your answers are kept.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

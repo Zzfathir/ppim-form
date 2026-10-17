@@ -177,3 +177,60 @@ ambiguous, or overridden by the owner. Newest phase at the bottom.
 - **Preview** opens the respondent view in a dialog with a Desktop / Mobile (360 px) switch; submitting is disabled.
 - `@playwright/test` is a dev dependency, used to drive the builder in a real browser during development. A
   committed end-to-end suite comes with the public form (Phase 4).
+
+## Phase 4 — Public form
+
+- **`/f/[slug]`** has no app chrome: one column, the form's cards, and a small footer ("Made with PPI Form" + EN/ID
+  switch). The page reads the form through the same service as `GET /api/public/forms/[slug]`
+  (`src/lib/public-form/service.ts`, service role, public-safe fields only).
+- **States** (build prompt §7):
+  - **Not found**: unknown or malformed slug, or a soft-deleted form. Real HTTP 404.
+  - **Not accepting**: status is not `open`, or `closes_at` has passed. Shows title and department only.
+  - **Sign in required**: shows title, description, an explanation and the Google button. One click; the user comes
+    back to the form.
+  - **Already responded**: sign-in form with the one-response limit, and this account already answered.
+  - **Thank you**: the custom confirmation message, or "Your response has been recorded."
+- **Sign-in from a form page** reuses `/auth/callback` with `next=/f/{slug}`. Nothing creates or upgrades a profile
+  there (A7); the user stays a `respondent`. An e2e test checks they aren't sent to onboarding.
+- **Signed-in respondents** see "Signed in as {email} · Switch account" plus a note that their name and email are
+  recorded. "Switch account" signs out and returns to the form through `/login?returnTo=`.
+- **Submit (`POST /api/public/forms/[slug]/submit`)** runs every check again on the server, in order:
+  1. rate limit;
+  2. payload shape (zod);
+  3. form exists and is open (not past `closes_at`);
+  4. honeypot;
+  5. sign-in when required;
+  6. answers validated against the form's current questions;
+  7. identity and dedupe;
+  8. insert.
+
+  Then:
+  - A `23505` unique violation on `(form_id, dedupe_key)` means "already responded"; concurrent double submits
+    are tested.
+  - Identity comes **only** from the session on sign-in forms (name/email from the Google profile). On anonymous
+    forms all identity fields are null, except the optional name when *Collect name* is on. Any identity sent by
+    the client is ignored.
+- **Request hardening:**
+  - The body must be `application/json`. Browsers can't send that cross-site without a CORS preflight, which is
+    never allowed, so a plain cross-site HTML form post gets 415.
+  - The body is capped at 256 KB, answers at 300 keys, plus the per-type text caps from Phase 3.
+- **Rate limit:** 60 submissions per 10 minutes per IP per form, as a database-backed fixed window
+  (`hit_rate_limit()`, service role only), so it holds across server processes. It's generous on purpose:
+  - at events many respondents share one Wi-Fi IP;
+  - the honeypot and server validation do the rest;
+  - CAPTCHA only if abuse appears (R7).
+
+  The client IP comes from the first `X-Forwarded-For` entry, then `X-Real-IP`. **The production reverse proxy must
+  set these** (note for Phase 7). Old windows are cleaned up opportunistically.
+- **Honeypot:** a hidden `website` field. If it's filled, the server answers with a normal success and stores
+  nothing, so bots don't learn they were caught.
+- **No search indexing:** public form pages send `robots: noindex, nofollow`. Forms are for whoever has the link;
+  there's no public directory (P2).
+- **Answers survive errors:** validation errors (client or server) keep everything typed and focus the first
+  problem. Network, rate-limit and expired-session errors show a message and keep the answers.
+- "Submit another response" (R8), "Report this form" (R9) and auto-close UI (B12) are P1/P2 and not built. The
+  `closes_at` check is honoured because it costs nothing.
+- **E2E tests:** Playwright runs against the dev server and local Supabase (`npm run test:e2e`).
+  - Respondent specs use a 360 px viewport; builder specs use desktop.
+  - Google sign-in is stood in for by creating a real Supabase session cookie for a test user (local stack only).
+  - Every e2e test also fails on browser console errors, which catches hydration problems.

@@ -6,7 +6,7 @@ import { getSessionUser } from "@/lib/auth";
 import { isPublicFormPath, safeReturnTo } from "@/lib/safe-redirect";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { GoogleSignInButton } from "./google-sign-in-button";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
 export const metadata = { title: "Sign in" };
 

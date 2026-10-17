@@ -30,6 +30,8 @@ Cloud, then restart with `npm run db:stop && npm run db:start`.
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run lint` / `typecheck` | ESLint / route typegen + `tsc` |
 | `npm test` | Unit tests + database permission tests (needs local Supabase running and seeded) |
+| `npm run test:e2e` | Browser tests (Playwright): public form at 360 px and the builder. Starts or reuses the dev server on port 3001 (`E2E_PORT` to change). First run: `npx playwright install chromium` |
+| `npm run check:messages` | Checks that `messages/en.json` and `messages/id.json` have the same keys |
 | `npm run db:seed` | Base data only (departments, chapters, categories, templates); safe to re-run |
 | `npm run db:seed:dev` | Base data + sample admins, forms and responses (refuses non-local databases) |
 | `npm run db:reset` | Recreate the local DB from migrations and run the dev seed |

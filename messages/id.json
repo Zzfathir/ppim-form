@@ -266,5 +266,27 @@
       "invalid_date": "Silakan masukkan tanggal yang valid",
       "invalid": "Jawaban ini tidak valid"
     }
+  },
+  "publicForm": {
+    "notFoundTitle": "Formulir tidak ditemukan",
+    "notFoundBody": "Tautan ini tidak mengarah ke formulir. Mungkin salah ketik atau formulirnya sudah dihapus.",
+    "closedBody": "Formulir ini sudah tidak menerima jawaban.",
+    "closedHint": "Hubungi penyelenggara jika menurut Anda ini keliru.",
+    "needsLoginTitle": "Masuk untuk melanjutkan",
+    "needsLoginBody": "Formulir ini meminta Anda masuk dengan Google. Nama dan email Anda akan dicatat bersama jawaban Anda.",
+    "alreadyTitle": "Anda sudah mengisi formulir ini",
+    "alreadyBody": "Formulir ini hanya bisa diisi satu kali.",
+    "thankYouDefault": "Jawaban Anda telah direkam.",
+    "signedInAs": "Masuk sebagai {email}",
+    "recorded": "Nama dan email Anda akan dicatat bersama jawaban Anda.",
+    "switchAccount": "Ganti akun",
+    "poweredBy": "Dibuat dengan {app}",
+    "errors": {
+      "rate_limited": "Terlalu banyak kiriman dari jaringan Anda. Tunggu beberapa menit lalu coba lagi.",
+      "closed": "Formulir ini berhenti menerima jawaban saat Anda sedang mengisinya.",
+      "needs_login": "Sesi masuk Anda berakhir. Silakan masuk lagi; jawaban Anda tetap tersimpan di halaman ini.",
+      "network": "Gagal mengirim jawaban. Periksa koneksi lalu coba lagi — jawaban Anda tetap tersimpan.",
+      "generic": "Terjadi kesalahan. Silakan coba lagi."
+    }
   }
 }

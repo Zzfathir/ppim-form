@@ -42,7 +42,18 @@ export async function createForm(opts: {
   if (questions.length === 0) return { id: form.id, questionIds: [] };
   const { data: qs, error: qErr } = await svc
     .from("questions")
-    .insert(questions.map((q, position) => ({ ...q, form_id: form.id, position })))
+    // Bulk inserts null out keys missing from some rows, so give every row the same shape.
+    .insert(
+      questions.map((q, position) => ({
+        description: null,
+        required: false,
+        options: null,
+        settings: {},
+        ...q,
+        form_id: form.id,
+        position,
+      })),
+    )
     .select("id, position")
     .order("position");
   if (qErr || !qs) throw qErr;
