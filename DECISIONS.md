@@ -411,3 +411,59 @@ request wins** (the owner is the product owner); each change is noted here.
 - **`npm run db:clean-tests`** removes users and data left by test runs from the local database, keeping real
   (Google) accounts and the dev seed. Test runs create real users, so use this instead of `db:reset` once you've
   signed in with Google locally.
+
+## Owner revision round 2 (2026-10-18)
+
+- **Less rounded corners** (owner): the single radius token is now 4px (`--radius: 0.25rem`), so buttons and inputs
+  are 4px, cards ~6px and the form sheet ~6px. Linear-scale answers are squared buttons. Status pills, avatars,
+  switches and progress bars stay round (they're shapes, not boxes).
+- **Live banner preview:** the builder's banner picker renders the real respondent sheet header (`FormSheet`) in
+  the chosen style, so switching Edge-to-edge / Inset / Title on banner shows the exact result immediately.
+- **Default thank-you text:** new forms are created with an editable confirmation message ("Your response has been
+  recorded. Thank you for taking the time to fill in this form!"). Older forms with no message show the same text.
+  - The thank-you screen shows "Thank you!", the message, and **Submit another response** (P1 R8, pulled forward)
+    unless the form is sign-in + one response per person (`allowAnother`).
+- **Multi-page forms** (P1 B10, pulled forward; owner chose *in-order pages, no jumping by answer*):
+  - A new item type `section` (enum value added in its own migration, since Postgres can't use a new enum value
+    in the transaction that adds it).
+  - A section starts a new page and has an optional title and description; the questions before the first
+    section form page 1.
+  - Respondents see one page at a time with Back / Next, "Page N of M" and a progress bar. Next validates only
+    that page; numbering continues across pages; answers are kept when going Back. On submit, errors (client or
+    server) jump to the page of the first problem. Pressing Enter on an earlier page means Next, not submit.
+  - Sections are ignored by answer validation, the publish checks (`publish_problems`, `localProblems`),
+    summaries, the responses table, exports and Google Sheets columns. Builder question numbers skip sections.
+  - Bug found by screenshot and fixed: Next and Submit need distinct React keys. Otherwise React turns the clicked
+    Next button into a submit button mid-click and the form submits. A regression test covers it.
+- **Google Sheets live sync** (spec S6, pulled forward; owner chose *a live sheet in the admin's own Drive*):
+  - **Permission:** only `drive.file` (plus `openid email`). Google classes it as non-sensitive, and the app can
+    only touch spreadsheets it creates. Going public needs only basic app verification.
+    - While the Google app is in "Testing" mode, Google expires refresh tokens after 7 days; set it to
+      "In production" for real use.
+  - **Linking** (form owner or superadmin): POST `/api/google/link`. If the person already granted access, the
+    sheet is created immediately; otherwise they go through Google consent (PKCE, signed state cookie, return
+    path `/api/google/callback`).
+    - The callback checks that the returning person is the one who started and can still edit the form.
+    - The refresh token is stored **encrypted** (AES-256-GCM, `GOOGLE_TOKEN_KEY`) in `google_connections`,
+      readable only by the service role.
+  - **Sheet layout:** "<title> (Responses)" in the linker's Drive, one tab "Responses", frozen header:
+    Timestamp | Name | Email | one column per question (sections skipped). Questions added later get new columns
+    at the end. Values are written **RAW**, so answers can never become formulas.
+  - **Syncing:**
+    - After each successful submission the server syncs in the background (`after()`), so the respondent never
+      waits for Google.
+    - A per-form database lease (`claim_sheet_sync`) lets only one sync run at a time; concurrent ones return
+      "busy" because the running sync picks up their rows.
+    - Rows are appended oldest-first in batches of 500, and each response is marked `sheet_synced_at`, so busy
+      events don't hit Google's per-minute quotas and nothing is skipped or duplicated.
+    - "Sync now" catches up any stragglers.
+  - **Errors** are stored on the link (`access_revoked`, `not_found`, `quota`, `failed`) and shown with a fix
+    ("Reconnect Google", "Unlink then link again"). Pending rows stay pending until a sync succeeds.
+  - **Unlink** stops syncing; the spreadsheet stays in the owner's Drive. Linking again creates a new sheet with
+    everything.
+  - Anyone who can read the form can see whether it syncs and open the link (the sheet itself is shared only if
+    its owner shares it in Drive). Only editors can link, sync or unlink.
+  - The feature is hidden until `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` and `GOOGLE_TOKEN_KEY` are
+    set (see `.env.example`). The redirect URI registered in Google must be `<NEXT_PUBLIC_APP_URL>/api/google/callback`.
+  - Tests use a fake Google: link + back-fill, append-only, new columns, concurrent syncs without duplicates,
+    revoked access and recovery, RLS on link status, token encryption.

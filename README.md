@@ -48,7 +48,9 @@ See [`.env.example`](.env.example).
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser + server (publishable key; RLS protects the data) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Server only**: public form endpoints, superadmin bootstrap, seed script |
 | `SUPERADMIN_EMAILS` | Comma-separated Google emails promoted to superadmin on sign-in |
-| `NEXT_PUBLIC_APP_URL` | Base URL used in share links |
+| `NEXT_PUBLIC_APP_URL` | Base URL used in share links (and the Google Sheets callback) |
+| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Optional: Google Sheets live sync (same OAuth client as sign-in) |
+| `GOOGLE_TOKEN_KEY` | Optional: 32-byte base64 key that encrypts stored Google tokens |
 
 ## Cloud setup (Supabase + Google)
 

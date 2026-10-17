@@ -280,8 +280,11 @@ export function FormRenderer({
                 {t("back")}
               </Button>
             )}
+            {/* Distinct keys: React must replace Next with a new Submit element, not turn the clicked
+                Next button into a submit button mid-click (which would submit the form). */}
             {isLast ? (
               <Button
+                key="submit"
                 type="submit"
                 size="lg"
                 disabled={preview || submitting}
@@ -292,7 +295,7 @@ export function FormRenderer({
                 {!submitting && <ArrowRight aria-hidden />}
               </Button>
             ) : (
-              <Button type="button" size="lg" onClick={next} className="min-w-36 gap-2 bg-[var(--form-accent)] text-base hover:bg-[var(--form-accent)]/90">
+              <Button key="next" type="button" size="lg" onClick={next} className="min-w-36 gap-2 bg-[var(--form-accent)] text-base hover:bg-[var(--form-accent)]/90">
                 {t("next")}
                 <ArrowRight aria-hidden />
               </Button>

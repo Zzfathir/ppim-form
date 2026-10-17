@@ -168,3 +168,92 @@ test("department templates: colleagues see them, other departments only after sh
   await colleagueCtx.close();
   await outsiderCtx.close();
 });
+
+test("multi-page form: per-page validation, Back keeps answers, thank-you with 'Submit another response'", async ({ browser, baseURL, page }) => {
+  await admin(page, baseURL!, "rev-pages", d1, "Pages Owner");
+  const form = await createForm({
+    owner: users.at(-1)!,
+    department: d1,
+    category,
+    status: "open",
+    title: "Two-step registration",
+    questions: [
+      { type: "short_text", title: "Full name", required: true },
+      { type: "section", title: "Your trip", description: "Tell us how you'll arrive." },
+      { type: "single_choice", title: "Transport", required: true, options: ["Bus", "Train"] },
+    ],
+  });
+  const { data } = await serviceClient().from("forms").select("share_slug").eq("id", form.id).single();
+
+  const r = await browser.newPage({ viewport: { width: 360, height: 780 } });
+  await r.goto(`${baseURL}/f/${data!.share_slug}`);
+  await expect(r.getByText("Page 1 of 2")).toBeVisible();
+  await expect(r.getByRole("button", { name: "Submit" })).toHaveCount(0);
+
+  // Next is blocked until this page's required question is answered.
+  await r.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(r.getByText("This is a required question")).toBeVisible();
+  await r.getByRole("textbox", { name: "Full name" }).fill("Rina");
+  await r.getByRole("button", { name: "Next", exact: true }).click();
+
+  await expect(r.getByText("Page 2 of 2")).toBeVisible();
+  await expect(r.getByRole("heading", { name: "Your trip" })).toBeVisible();
+  await expect(r.getByText("02", { exact: true })).toBeVisible(); // numbering continues across pages
+  await r.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(r.getByRole("textbox", { name: "Full name" })).toHaveValue("Rina");
+  await r.getByRole("button", { name: "Next", exact: true }).click();
+  await r.getByRole("radio", { name: "Train" }).click();
+  await r.getByRole("button", { name: "Submit" }).click();
+
+  await expect(r.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+  await expect(r.getByText("Your response has been recorded. Thank you for taking the time to fill in this form!")).toBeVisible();
+  const { data: rows } = await serviceClient().from("responses").select("answers").eq("form_id", form.id);
+  expect(rows).toEqual([{ answers: { [form.questionIds[0]]: "Rina", [form.questionIds[2]]: "Train" } }]);
+
+  await r.getByRole("button", { name: "Submit another response" }).click();
+  await expect(r.getByRole("textbox", { name: "Full name" })).toHaveValue("");
+  await expect(r.getByText("Page 1 of 2")).toBeVisible();
+  await r.close();
+});
+
+test("builder: new forms get the default thank-you text; Add section inserts a page break", async ({ page, baseURL }) => {
+  await admin(page, baseURL!, "rev-builder-sections", d1, "Section Builder");
+  await page.goto("/dashboard");
+  await page.getByRole("button", { name: "New form" }).first().click();
+  await page.waitForURL(/\/forms\/[0-9a-f-]{36}$/);
+  await page.getByRole("button", { name: "Add section" }).click();
+  await expect(page.getByText("Page 2 of 2").first()).toBeVisible();
+  await page.getByRole("textbox", { name: "Section title (page 2)" }).fill("Details");
+  await page.getByRole("tab", { name: "Settings" }).click();
+  await expect(page.getByLabel("Confirmation message")).toHaveValue(/Your response has been recorded/);
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 10_000 });
+  const formId = page.url().split("/").pop()!;
+  const { data: qs } = await serviceClient().from("questions").select("type, title").eq("form_id", formId).order("position");
+  expect(qs).toEqual([
+    { type: "short_text", title: "" },
+    { type: "section", title: "Details" },
+  ]);
+});
+
+test("moving to the last page doesn't submit or flag the new page", async ({ browser, baseURL, page }) => {
+  await admin(page, baseURL!, "rev-next-submit", d1, "Next Owner");
+  const form = await createForm({
+    owner: users.at(-1)!,
+    department: d1,
+    category,
+    status: "open",
+    questions: [
+      { type: "short_text", title: "First", required: false },
+      { type: "section", title: "Second page" },
+      { type: "short_text", title: "Second", required: true },
+    ],
+  });
+  const { data } = await serviceClient().from("forms").select("share_slug").eq("id", form.id).single();
+  const r = await browser.newPage({ viewport: { width: 360, height: 780 } });
+  await r.goto(`${baseURL}/f/${data!.share_slug}`);
+  await r.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(r.getByText("Page 2 of 2")).toBeVisible();
+  await expect(r.getByText("This is a required question")).toHaveCount(0);
+  expect((await serviceClient().from("responses").select("id").eq("form_id", form.id)).data).toEqual([]);
+  await r.close();
+});
