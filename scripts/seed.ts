@@ -2,7 +2,8 @@
  * Initial data for PPI Form. Safe to re-run: each table is only seeded when it
  * is empty, so renames/archives made later by the secretary are never undone.
  *
- *   npm run db:seed            # departments, chapters, categories (+ templates from Phase 2)
+ *   npm run db:seed            # departments, chapters, categories, templates
+ *   npm run db:seed:dev        # + sample admins, forms and responses (local database only)
  *
  * Reads NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from .env.local.
  */
@@ -11,6 +12,9 @@ import { resolve } from "node:path";
 import { config } from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/database.types";
+import { toJson } from "../src/lib/questions";
+import { TEMPLATES } from "./seed-data/templates";
+import { seedDevData } from "./seed-data/dev";
 
 config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -42,7 +46,7 @@ const CATEGORIES = [
 /** Placeholders until the owner supplies the real campus list (PRD §13.1). */
 const PLACEHOLDER_CHAPTERS = ["Chapter 1", "Chapter 2", "Chapter 3", "Chapter 4", "Chapter 5"];
 
-async function isEmpty(table: "departments" | "chapters" | "categories") {
+async function isEmpty(table: "departments" | "chapters" | "categories" | "templates") {
   const { count, error } = await db.from(table).select("*", { count: "exact", head: true });
   if (error) throw error;
   return (count ?? 0) === 0;
@@ -77,10 +81,36 @@ async function seedCategories() {
   console.log(`categories: inserted ${CATEGORIES.length}`);
 }
 
+async function seedTemplates() {
+  if (!(await isEmpty("templates"))) return console.log("templates: already seeded, skipped");
+  const { data: categories, error: catError } = await db.from("categories").select("id, name");
+  if (catError) throw catError;
+  const byName = new Map(categories.map((c) => [c.name, c.id]));
+  const { error } = await db.from("templates").insert(
+    TEMPLATES.map((t) => ({
+      title: t.title,
+      description: t.description,
+      category_id: byName.get(t.category) ?? null,
+      questions: toJson(t.questions),
+      is_published: true,
+    })),
+  );
+  if (error) throw error;
+  console.log(`templates: inserted ${TEMPLATES.length}`);
+}
+
 async function main() {
   await seedDepartments();
   await seedChapters();
   await seedCategories();
+  await seedTemplates();
+  if (process.argv.includes("--dev")) {
+    const host = new URL(url!).hostname;
+    if (!["127.0.0.1", "localhost"].includes(host)) {
+      throw new Error("--dev seed only runs against a local database");
+    }
+    await seedDevData(db);
+  }
   console.log("Seed complete.");
 }
 

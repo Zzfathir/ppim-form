@@ -14,8 +14,8 @@ Requirements: Node 20.9+, Docker Desktop (running).
 ```bash
 npm install
 npm run db:start      # starts local Supabase in Docker, applies supabase/migrations
-npm run db:seed       # departments (from spec/seed/departments.json), chapters, categories
-cp .env.example .env.local   # then fill in values from `npx supabase status`
+cp .env.example .env.local   # then fill in values from `npx supabase status` (see below)
+npm run db:seed:dev   # departments (spec/seed/departments.json), chapters, categories, templates + sample data
 npm run dev           # http://localhost:3000
 ```
 
@@ -30,7 +30,9 @@ Cloud, then restart with `npm run db:stop && npm run db:start`.
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run lint` / `typecheck` | ESLint / route typegen + `tsc` |
 | `npm test` | Unit tests + database permission tests (needs local Supabase running and seeded) |
-| `npm run db:reset` | Recreate the local DB from migrations and re-seed |
+| `npm run db:seed` | Base data only (departments, chapters, categories, templates); safe to re-run |
+| `npm run db:seed:dev` | Base data + sample admins, forms and responses (refuses non-local databases) |
+| `npm run db:reset` | Recreate the local DB from migrations and run the dev seed |
 | `npm run db:types` | Regenerate `src/lib/database.types.ts` from the local DB |
 
 ## Environment variables
@@ -58,6 +60,6 @@ See [`.env.example`](.env.example).
 4. **Supabase → Authentication → URL Configuration:** set Site URL to your app URL, and add redirect URLs
    `http://localhost:3000/**` and `https://<your-domain>/**`.
 5. Apply the schema: `npx supabase link --project-ref <ref>` then `npx supabase db push`.
-6. Seed: point `.env.local` at the cloud project and run `npm run db:seed` once.
+6. Seed: point `.env.local` at the cloud project and run `npm run db:seed` once (never `db:seed:dev`).
 
 Deployment notes (Vercel) will be completed in the polish phase.

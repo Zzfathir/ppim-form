@@ -105,6 +105,56 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"forms": {
+                  Row: {
+                    "category_id": string | null,"chapter_id": string | null,"closed_at": string | null,"closes_at": string | null,"collect_name": boolean,"confirmation_message": string | null,"created_at": string,"deleted_at": string | null,"department_id": string | null,"description": string | null,"id": string,"internal_note": string | null,"limit_one_response": boolean,"owner_id": string,"published_at": string | null,"requires_login": boolean,"share_slug": string,"status": Database["public"]['Enums']["form_status"],"template_id": string | null,"theme_color": string,"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"owner_id": string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"owner_id"?: string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "forms_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "forms_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "forms_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "forms_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "forms_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "forms_template_id_fkey"
+      columns: ["template_id"]
+isOneToOne: false
+      referencedRelation: "templates"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "avatar_url": string | null,"chapter_id": string | null,"created_at": string,"department_id": string | null,"email": string,"full_name": string | null,"id": string,"last_seen_at": string | null,"role": Database["public"]['Enums']["user_role"],"status": Database["public"]['Enums']["user_status"]
@@ -131,6 +181,102 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"questions": {
+                  Row: {
+                    "description": string | null,"form_id": string,"id": string,"is_deleted": boolean,"options": Json | null,"position": number,"required": boolean,"settings": NonNullable<Json>,"title": string,"type": Database["public"]['Enums']["question_type"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "description"?: string | null,"form_id": string,"id"?: string,"is_deleted"?: boolean,"options"?: Json | null,"position": number,"required"?: boolean,"settings"?: NonNullable<Json>,"title"?: string,"type": Database["public"]['Enums']["question_type"]
+                  }
+                  Update: {
+                    "description"?: string | null,"form_id"?: string,"id"?: string,"is_deleted"?: boolean,"options"?: Json | null,"position"?: number,"required"?: boolean,"settings"?: NonNullable<Json>,"title"?: string,"type"?: Database["public"]['Enums']["question_type"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "questions_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: false
+      referencedRelation: "form_stats"
+      referencedColumns: ["form_id"]
+    },{
+      foreignKeyName: "questions_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: false
+      referencedRelation: "forms"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"responses": {
+                  Row: {
+                    "answers": NonNullable<Json>,"dedupe_key": string | null,"form_id": string,"id": string,"respondent_email": string | null,"respondent_id": string | null,"respondent_name": string | null,"submitted_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answers": NonNullable<Json>,"dedupe_key"?: string | null,"form_id": string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"submitted_at"?: string
+                  }
+                  Update: {
+                    "answers"?: NonNullable<Json>,"dedupe_key"?: string | null,"form_id"?: string,"id"?: string,"respondent_email"?: string | null,"respondent_id"?: string | null,"respondent_name"?: string | null,"submitted_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "responses_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: false
+      referencedRelation: "form_stats"
+      referencedColumns: ["form_id"]
+    },{
+      foreignKeyName: "responses_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: false
+      referencedRelation: "forms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "responses_respondent_id_fkey"
+      columns: ["respondent_id"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "responses_respondent_id_fkey"
+      columns: ["respondent_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"templates": {
+                  Row: {
+                    "category_id": string | null,"created_at": string,"created_by": string | null,"description": string | null,"id": string,"is_published": boolean,"questions": NonNullable<Json>,"title": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title": string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "templates_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "templates_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "templates_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -154,11 +300,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"form_stats": {
+                  Row: {
+                    "form_id": string | null,"last_response_at": string | null,"response_count": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Functions: {
             "admin_approval_required":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"can_edit_form":
+{ Args: { "p_form_id": string }; Returns: boolean
+                           },
+"can_read_form":
+{ Args: { "p_form_id": string }; Returns: boolean
                            },
 "complete_onboarding":
 { Args: { "p_chapter_id"?: string,"p_department_id": string,"p_full_name": string }; Returns: {
@@ -185,6 +345,15 @@ isOneToOne: false
 "current_user_role":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["user_role"]
                            },
+"duplicate_form":
+{ Args: { "p_form_id": string }; Returns: string
+                           },
+"generate_share_slug":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"is_active_or_pending_staff":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "is_staff":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -193,10 +362,19 @@ isOneToOne: false
                            },
 "log_activity":
 { Args: { "p_action": string,"p_entity_id": string,"p_entity_type": string,"p_meta"?: Json }; Returns: undefined
+                           },
+"publish_check":
+{ Args: { "p_form_id": string }; Returns: (string)[]
+                           },
+"publish_problems":
+{ Args: { "p_form_id": string }; Returns: (string)[]
+                           },
+"soft_delete_form":
+{ Args: { "p_form_id": string }; Returns: undefined
                            }
           }
           Enums: {
-            "user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
+            "form_status": "draft"|"open"|"closed"|"archived","question_type": "short_text"|"paragraph"|"single_choice"|"multiple_choice"|"dropdown"|"scale"|"date","user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -316,7 +494,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
+            "form_status": ["draft", "open", "closed", "archived"],"question_type": ["short_text", "paragraph", "single_choice", "multiple_choice", "dropdown", "scale", "date"],"user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
           }
         }
 } as const
