@@ -1,0 +1,14 @@
+[
+  { "name": "BPH",                     "description": "Badan Pengurus Harian (executive board)" },
+  { "name": "Biro KSA",                "description": "Kesekretariatan (secretariat); superadmin team" },
+  { "name": "Biro Pusdatin",           "description": "Pusat Data dan Informasi" },
+  { "name": "Departemen Kelembagaan",  "description": "" },
+  { "name": "Departemen Pendidikan",   "description": "" },
+  { "name": "Departemen Keagamaan",    "description": "" },
+  { "name": "Departemen Penkastrat",   "description": "" },
+  { "name": "Departemen Sosmas",       "description": "" },
+  { "name": "Departemen Segaya",       "description": "" },
+  { "name": "Departemen Kominfo",      "description": "" },
+  { "name": "Departemen Huvoks",       "description": "" },
+  { "name": "Departemen Danus",        "description": "" }
+]
