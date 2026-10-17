@@ -163,7 +163,15 @@ export function FormCard({
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dd className="font-medium text-foreground">{t("responses", { count: form.responseCount })}</dd>
+          <dd className="font-medium text-foreground">
+            {form.responseCount > 0 ? (
+              <Link href={`/forms/${form.id}?tab=responses`} className="relative z-10 underline-offset-2 hover:underline">
+                {t("responses", { count: form.responseCount })}
+              </Link>
+            ) : (
+              t("responses", { count: form.responseCount })
+            )}
+          </dd>
           <dd>{t("edited", { date: format.relativeTime(new Date(form.updated_at), new Date(now)) })}</dd>
         </div>
       </dl>

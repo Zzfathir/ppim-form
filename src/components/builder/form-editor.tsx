@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/empty-state";
+import { ResponsesPanel } from "@/components/responses/responses-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { FormRenderer } from "@/components/form-renderer/form-renderer";
 import type { RenderForm } from "@/components/form-renderer/types";
@@ -53,6 +54,7 @@ export type FormEditorProps = {
   responseCount: number;
   ownerName: string | null;
   backHref: string;
+  initialTab?: "questions" | "responses" | "settings";
 };
 
 export function FormEditor(props: FormEditorProps) {
@@ -64,7 +66,7 @@ export function FormEditor(props: FormEditorProps) {
   const [questions, setQuestions] = useState(props.initialQuestions);
   const [status, setStatus] = useState(props.initialStatus);
   const [activeId, setActiveId] = useState<string | null>(props.initialQuestions[0]?.id ?? null);
-  const [tab, setTab] = useState("questions");
+  const [tab, setTab] = useState<string>(props.initialTab ?? "questions");
   const [showProblems, setShowProblems] = useState(false);
   const [serverProblems, setServerProblems] = useState<PublishProblem[]>([]);
   const [shareOpen, setShareOpen] = useState(false);
@@ -283,12 +285,15 @@ export function FormEditor(props: FormEditorProps) {
             )
           ) : (
             <>
-              <div className="hidden items-center gap-2 md:flex">
-                <Label htmlFor="accepting-bar" className="text-sm font-normal text-muted-foreground">
-                  {t("accepting")}
-                </Label>
-                <Switch id="accepting-bar" checked={status === "open"} onCheckedChange={toggleAccepting} disabled={busy} />
-              </div>
+              {/* Archived forms are restored by a superadmin, not reopened here. */}
+              {isLive && (
+                <div className="hidden items-center gap-2 md:flex">
+                  <Label htmlFor="accepting-bar" className="text-sm font-normal text-muted-foreground">
+                    {t("accepting")}
+                  </Label>
+                  <Switch id="accepting-bar" checked={status === "open"} onCheckedChange={toggleAccepting} disabled={busy} />
+                </div>
+              )}
               <Button
                 onClick={() => {
                   setJustPublished(false);
@@ -401,12 +406,7 @@ export function FormEditor(props: FormEditorProps) {
         </TabsContent>
 
         <TabsContent value="responses">
-          {/* Summary, table and export are built in Phase 5. */}
-          <EmptyState
-            icon={Check}
-            title={t("responsesPlaceholderTitle", { count: props.responseCount })}
-            body={t("responsesPlaceholderBody")}
-          />
+          <ResponsesPanel formId={formId} questions={questions} isDraft={status === "draft"} />
         </TabsContent>
 
         <TabsContent value="settings">

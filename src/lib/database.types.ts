@@ -365,6 +365,9 @@ isOneToOne: false
 "duplicate_form":
 { Args: { "p_form_id": string }; Returns: string
                            },
+"form_summary":
+{ Args: { "p_form_id": string }; Returns: Json
+                           },
 "generate_share_slug":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
@@ -388,6 +391,11 @@ isOneToOne: false
                            },
 "publish_problems":
 { Args: { "p_form_id": string }; Returns: (string)[]
+                           },
+"responses_page":
+{ Args: { "p_desc"?: boolean,"p_form_id": string,"p_limit"?: number,"p_offset"?: number,"p_query"?: string,"p_sort"?: string }; Returns: {
+              "answers": Json,"id": string,"respondent_email": string,"respondent_name": string,"submitted_at": string,"total_count": number
+            }[]
                            },
 "save_form":
 { Args: { "p_form": Json,"p_form_id": string,"p_questions": Json }; Returns: string

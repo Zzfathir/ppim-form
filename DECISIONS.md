@@ -234,3 +234,49 @@ ambiguous, or overridden by the owner. Newest phase at the bottom.
   - Respondent specs use a 360 px viewport; builder specs use desktop.
   - Google sign-in is stood in for by creating a real Supabase session cookie for a test user (local stack only).
   - Every e2e test also fails on browser console errors, which catches hydration problems.
+
+## Phase 5 — Responses
+
+- **Aggregation happens in Postgres**, not the browser:
+  - `form_summary()` gives per-question stats;
+  - `responses_page()` gives a searchable, sortable page plus the total count.
+
+  Both are `SECURITY INVOKER`, so RLS decides access (owner, same-department read-only, superadmin). Other
+  departments get `form_not_found` or no rows.
+- **Summary forms** (chosen by the data's job):
+  - **Choice questions** (multiple choice, checkboxes, dropdown): a horizontal bar list in option order, then
+    "Other" if used. Every bar shows its count and percentage as text, so color is never the only carrier.
+    Checkbox percentages are relative to respondents who answered (they can add up to more than 100%; a note
+    says so).
+  - **Linear scale:** the average as a headline number, plus a distribution column for every scale value, zeros
+    included.
+  - **Date:** answers grouped by date, in date order (first 15 shown).
+  - **Short answer / paragraph:** the 10 latest answers, plus a link to the table for the rest.
+  - Bars are single-series in the brand accent; no legend is needed.
+  - These are plain HTML bar lists rather than Recharts: readable at 360 px, accessible as text, and no chart
+    library in the builder bundle. Recharts is kept for the Phase 6 time-series charts.
+- **Chart palette:** `brand.chartPalette` **fails** the categorical-palette validator (the greys and near-black read
+  as grey). Every P0 chart is designed as single-series, so no categorical palette is needed. If a multi-series
+  chart is ever added, derive and validate a proper categorical palette first.
+- **Deleted questions** with answers are left out of the Summary (it shows the current form). They appear in the
+  table and exports as "<title> (deleted question)" columns, so no data silently disappears.
+- **Table:**
+  - 25 rows per page, paginated on the server.
+  - Search: case-insensitive, literal (`%` and `_` are escaped), across answers, name and email.
+  - Sort: by submitted time, name, email, or any question's answer.
+  - The timestamp column is sticky when scrolling sideways.
+  - Times are shown in **Asia/Kuala_Lumpur** (`src/config/app.ts`).
+- **Export** (`GET /api/forms/{id}/export?format=csv|xlsx`):
+  - Built on the server with the user's session (RLS → 404 for forms the user can't read, 401 when signed out).
+  - Rows are oldest first. Columns follow question order. Checkbox answers are joined with "; ".
+  - Name/Email columns appear only if some response has them. Timestamps are `YYYY-MM-DD HH:mm:ss` in Malaysia
+    time.
+  - CSV: UTF-8 with BOM (so Excel shows Indonesian names correctly), CRLF line endings, and cells starting with
+    `= + - @` prefixed with `'` (spreadsheet formula-injection guard).
+  - XLSX (ExcelJS): bold frozen header, scale answers as numbers, every other answer as a text cell (never a
+    formula), sensible column widths.
+  - File name: `<title>-responses-<date>.csv|xlsx`.
+- Dashboard cards link the response count to `/forms/{id}?tab=responses`. `?tab=` opens any builder tab.
+- **Archived forms** show no "Accepting responses" toggle. Restoring them is a superadmin action (Phase 6).
+- **Streaming and 404s:** the builder page streams behind its loading skeleton, so a form the user can't see
+  renders the "Page not found" view with HTTP 200 (no form data is sent). The API endpoints return real 404s.

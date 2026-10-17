@@ -13,10 +13,14 @@ export async function generateMetadata({ params }: PageProps<"/forms/[id]">): Pr
   return { title: data?.form.title };
 }
 
-export default async function FormBuilderPage({ params }: PageProps<"/forms/[id]">) {
+const TABS = ["questions", "responses", "settings"] as const;
+
+export default async function FormBuilderPage({ params, searchParams }: PageProps<"/forms/[id]">) {
   const profile = await requireStaff();
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
+  const { tab } = await searchParams;
+  const initialTab = TABS.find((t) => t === tab);
 
   // RLS decides visibility: owner, same department (read-only) or superadmin.
   const data = await getBuilderData(id);
@@ -51,6 +55,7 @@ export default async function FormBuilderPage({ params }: PageProps<"/forms/[id]
       responseCount={data.responseCount}
       ownerName={data.ownerName}
       backHref={profile.role === "superadmin" ? "/admin/forms" : "/dashboard"}
+      initialTab={initialTab}
     />
   );
 }

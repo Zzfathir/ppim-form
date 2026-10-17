@@ -28,6 +28,6 @@ export default defineConfig({
       testMatch: /public-form\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 780 }, hasTouch: true },
     },
-    { name: "desktop", testMatch: /builder\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", testMatch: /(builder|responses)\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
   ],
 });
