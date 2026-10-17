@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { brand, brandCssVariables } from "@/config/brand";
 import "./globals.css";
 
@@ -26,7 +27,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-center" />
         </NextIntlClientProvider>
       </body>

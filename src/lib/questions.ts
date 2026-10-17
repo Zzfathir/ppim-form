@@ -21,7 +21,7 @@ export function isChoiceType(type: QuestionType): boolean {
 /** Settings stored in `questions.settings` (all optional). */
 export type QuestionSettings = {
   /** Scale bounds (default 1–5) and optional end labels. */
-  min?: number;
+  min?: 0 | 1;
   max?: number;
   min_label?: string;
   max_label?: string;

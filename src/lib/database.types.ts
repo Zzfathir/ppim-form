@@ -314,6 +314,9 @@ isOneToOne: false
             "admin_approval_required":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"answered_question_ids":
+{ Args: { "p_form_id": string }; Returns: string[]
+                           },
 "can_edit_form":
 { Args: { "p_form_id": string }; Returns: boolean
                            },
@@ -368,6 +371,9 @@ isOneToOne: false
                            },
 "publish_problems":
 { Args: { "p_form_id": string }; Returns: (string)[]
+                           },
+"save_form":
+{ Args: { "p_form": Json,"p_form_id": string,"p_questions": Json }; Returns: string
                            },
 "soft_delete_form":
 { Args: { "p_form_id": string }; Returns: undefined

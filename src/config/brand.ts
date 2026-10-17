@@ -25,6 +25,8 @@ export const brand = {
     canvas: "#F4F4F5",
     border: "#E4E4E7",
     danger: "#B91C1C",
+    /** "Accepting responses" status. 5.5:1 on white. */
+    success: "#047857",
   },
   /** Multi-series chart palette: red, black, greys, then a few neutral supporting hues. */
   chartPalette: ["#E8080A", "#111111", "#71717A", "#A1A1AA", "#7F1D1D", "#0F766E", "#B45309", "#334155"],
@@ -45,6 +47,7 @@ export function brandCssVariables(): string {
     "--brand-canvas": c.canvas,
     "--brand-border": c.border,
     "--brand-danger": c.danger,
+    "--brand-success": c.success,
   };
   brand.chartPalette.forEach((color, i) => {
     vars[`--brand-chart-${i + 1}`] = color;

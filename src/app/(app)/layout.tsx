@@ -58,8 +58,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       </header>
 
       <div className="flex flex-1">
-        <aside className="hidden w-60 shrink-0 border-r bg-card p-4 md:block">
-          <SidebarNav sections={sections} />
+        <aside className="hidden w-60 shrink-0 border-r bg-card md:block">
+          <div className="sticky top-14 max-h-[calc(100dvh-3.5rem)] overflow-y-auto p-4">
+            <SidebarNav sections={sections} />
+          </div>
         </aside>
         <main className="min-w-0 flex-1 px-4 pt-6 pb-24 md:px-8 md:pb-10">{children}</main>
       </div>

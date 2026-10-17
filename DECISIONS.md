@@ -123,3 +123,57 @@ ambiguous, or overridden by the owner. Newest phase at the bottom.
   - deterministic random data, so the dashboard looks the same every time.
 
   The other departments deliberately have no forms, to exercise "departments with zero forms".
+
+## Deployment target (owner, 2026-10-17)
+
+- The app will run on the owner's **existing hosting** under a **subdomain of the PPI Malaysia domain**, not on
+  Vercel. The hosting type (it must run Node.js for Next.js server rendering) gets confirmed in Phase 7.
+  `NEXT_PUBLIC_APP_URL` will be that subdomain; Supabase and Google redirect URLs must include it.
+
+## Phase 3 — Builder
+
+- **Autosave** sends the whole draft (form fields + ordered question list) about 800 ms after the last edit to the
+  `save_form()` RPC.
+  - The RPC is `SECURITY INVOKER`, so RLS and all triggers apply, and it runs in one transaction.
+  - Questions get **client-generated UUIDs**, so a new question needs no extra round trip and its id is stable from
+    the start.
+  - Questions missing from the list are deleted; answered ones become soft deletes (trigger).
+  - Only one save is in flight at a time. Edits made during a save are saved right after.
+  - Network errors retry with backoff (2/5/10/30 s). Offline edits save on reconnect.
+  - The tab warns before closing with unsaved changes.
+  - The status indicator shows Saving… / Saved / Unsaved / Offline / error.
+- **Edits to a live form apply immediately** (like Google Forms). Answered questions keep their answers: they
+  can't change type (locked in the UI with an explanation, and rejected by the DB), and deleting one is a soft delete.
+- **New form:** a blank form opens instantly with a localized "Untitled form" title and one empty short-answer
+  question (build prompt §9). Department and chapter come from the creator's profile.
+  - **"Add question"** adds a *Multiple choice* question with "Option 1" after the active card, like Google Forms.
+  - **From template:** copies the template's questions and title, pre-fills its category and records `template_id`.
+- **"Other" option** is offered for Multiple choice and Checkboxes only, not Dropdown (Google Forms parity). An "Other"
+  answer is stored as the typed text. A checkbox answer may contain at most one non-option value.
+- **Linear scale** starts at 0 or 1 and ends anywhere from 2 to 10, with optional end labels (Google Forms parity).
+  Changing type keeps whatever still applies (e.g. options between choice types).
+- **Answer limits** (`src/lib/forms/answers.ts`, shared by the client and the Phase 4 server): short answer 500
+  chars, paragraph 5,000, "Other" 500, respondent name 120; dates as `YYYY-MM-DD`.
+- **Department / Category / Chapter** pickers sit in the form's title card, visible above the questions (B7).
+  Archived or inactive values stay visible when already selected, marked "(archived)".
+- **Publish** shows an inline list of problems and highlights the offending fields and questions. The client
+  mirrors the server checks; the server (`publish_check` + trigger) decides.
+  - Pending admins see a disabled Publish button with an explanation; the server rejects them anyway.
+  - On success a share dialog shows a copyable link and an "Open form" button. QR codes are P1.
+- **Close/reopen** is one "Accepting responses" toggle, in the builder bar on desktop and in the Settings tab.
+  Reopening re-runs the publish checks.
+- **Settings** (B6): *Require Google sign-in*. *Limit to one response* only shows when sign-in is on; *Collect name*
+  only shows when it's off. Plus the confirmation message.
+- **Read-only view** for same-department colleagues (and anyone who can read but not edit): the respondent view of
+  the form plus a "Duplicate to my forms" button. Duplicating opens the new copy.
+- **Dashboard:** "My forms" and "My department" tabs, title search, status filter (kept in the URL), and cards with
+  status, department, category, response count and last edit.
+  - Card actions: open, copy link, duplicate, close/reopen, delete (with confirmation).
+  - Department forms are view-only and can be duplicated.
+- **Theme color:** forms render with the brand accent from `brand.ts`. The per-form `theme_color` column is
+  unused until the P1 theme feature (B14), so a rebrand changes every form's accent too.
+- **Drag and drop:** dnd-kit with pointer, touch (150 ms press) and keyboard sensors. Keyboard: focus the drag
+  handle, Space, arrow keys, Space.
+- **Preview** opens the respondent view in a dialog with a Desktop / Mobile (360 px) switch; submitting is disabled.
+- `@playwright/test` is a dev dependency, used to drive the builder in a real browser during development. A
+  committed end-to-end suite comes with the public form (Phase 4).

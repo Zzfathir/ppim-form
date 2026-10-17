@@ -9,6 +9,8 @@
   --font-heading: var(--font-jakarta);
   --color-brand: var(--brand);
   --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-chart-6: var(--chart-6);
   --color-chart-7: var(--chart-7);
   --color-chart-8: var(--chart-8);
@@ -69,6 +71,8 @@
   --brand: var(--brand-accent);
   --brand-soft: color-mix(in oklab, var(--brand-accent) 10%, var(--brand-surface));
   --destructive: var(--brand-danger);
+  --success: var(--brand-success);
+  --success-soft: color-mix(in oklab, var(--brand-success) 10%, var(--brand-surface));
   --border: var(--brand-border);
   --input: color-mix(in oklab, var(--brand-ink) 18%, var(--brand-surface));
   --ring: var(--brand-accent);
