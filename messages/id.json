@@ -244,7 +244,8 @@
       "archiveTitle": "Arsipkan formulir ini?",
       "archiveBody": "Formulir berhenti menerima jawaban dan masuk arsip. Anda bisa memulihkannya nanti.",
       "deletedToast": "Formulir dihapus",
-      "archivedToast": "Formulir diarsipkan"
+      "archivedToast": "Formulir diarsipkan",
+      "settingNameRequired": "Anonim, nama wajib"
     },
     "errors": {
       "form_not_found": "Formulir itu sudah tidak ada.",
@@ -352,20 +353,16 @@
     },
     "templates": {
       "title": "Kelola template",
-      "subtitle": "Template yang diterbitkan muncul di halaman Template untuk semua admin.",
-      "new": "Template baru",
+      "subtitle": "Semua template: template resmi PPIM dan milik tiap departemen.",
+      "new": "Template resmi baru",
       "emptyTitle": "Belum ada template",
-      "emptyBody": "Buat baru, atau gunakan “Simpan sebagai template” pada formulir mana pun.",
+      "emptyBody": "Buat template resmi, atau minta admin menyimpan formulir mereka sebagai template.",
       "questions": "{count} pertanyaan",
       "usage": "{count, plural, =0 {belum dipakai} other {dipakai # formulir}}",
-      "published": "Diterbitkan",
-      "publishedHint": "Template yang tidak diterbitkan disembunyikan dari admin.",
-      "back": "Kembali ke template",
-      "untitled": "Template tanpa judul",
-      "titleLabel": "Judul template",
-      "category": "Kategori",
-      "delete": "Hapus",
-      "deleteConfirm": "Hapus template ini? Formulir yang dibuat darinya tidak terpengaruh."
+      "official": "Resmi",
+      "by": "oleh {name}",
+      "shares": "dibagikan {count} kali",
+      "published": "Diterbitkan"
     }
   },
   "errors": {
@@ -392,13 +389,63 @@
   },
   "templates": {
     "title": "Template",
-    "subtitle": "Mulai dari formulir siap pakai, lalu ubah sesuka Anda.",
+    "subtitle": "Mulai dari formulir siap pakai, atau buat template untuk departemen Anda.",
+    "new": "Template baru",
     "blank": "Formulir kosong",
     "blankDescription": "Mulai dari awal.",
-    "use": "Gunakan template ini",
+    "use": "Gunakan",
     "questionCount": "{count} pertanyaan",
-    "emptyTitle": "Belum ada template",
-    "emptyBody": "Sekretariat belum menerbitkan template."
+    "sectionOfficial": "Template resmi PPIM",
+    "sectionOfficialHint": "Dikelola sekretariat, tersedia untuk semua departemen.",
+    "sectionMine": "Template saya",
+    "sectionMineHint": "Departemen Anda otomatis melihatnya. Bagikan agar terlihat oleh pihak lain.",
+    "emptyMine": "Belum ada template. Buat baru, atau gunakan “Simpan sebagai template” pada formulir Anda.",
+    "sectionDepartment": "Dari departemen saya",
+    "sectionDepartmentHint": "Dibuat oleh rekan satu departemen.",
+    "emptyDepartment": "Rekan Anda belum membuat template.",
+    "sectionShared": "Dibagikan ke saya",
+    "sectionSharedHint": "Template dari departemen lain yang dibagikan ke Anda atau departemen Anda.",
+    "emptyShared": "Belum ada yang dibagikan ke Anda.",
+    "untitled": "Template tanpa judul",
+    "copyOf": "Salinan {title}",
+    "badgeOfficial": "Resmi",
+    "badgeDepartmentOnly": "Departemen saya",
+    "sharedCount": "Dibagikan ke {count} lainnya",
+    "actionsFor": "Aksi untuk {title}",
+    "edit": "Edit",
+    "share": "Bagikan…",
+    "copy": "Buat salinan",
+    "delete": "Hapus",
+    "deleteTitle": "Hapus template ini?",
+    "deleteBody": "“{title}” akan hilang bagi semua yang dibagikan. Formulir yang sudah dibuat darinya tidak terpengaruh.",
+    "deleted": "Template dihapus",
+    "shareDialog": {
+      "title": "Bagikan “{title}”",
+      "body": "Departemen Anda selalu melihat template ini. Tambahkan orang atau departemen lain yang juga perlu melihatnya.",
+      "loading": "Memuat…",
+      "current": "Dibagikan ke",
+      "none": "Hanya departemen Anda.",
+      "remove": "Berhenti berbagi dengan {name}",
+      "people": "Orang",
+      "departments": "Departemen",
+      "searchPeople": "Cari nama atau departemen",
+      "noPeople": "Tidak ada yang cocok.",
+      "shareWith": "Bagikan ke {name}",
+      "add": "Tambah",
+      "alreadyShared": "Dibagikan"
+    },
+    "editor": {
+      "back": "Kembali ke template",
+      "untitled": "Template tanpa judul",
+      "share": "Bagikan",
+      "delete": "Hapus",
+      "deleteConfirm": "Hapus template ini? Formulir yang dibuat darinya tidak terpengaruh.",
+      "titleLabel": "Judul template",
+      "category": "Kategori",
+      "published": "Diterbitkan",
+      "publishedHint": "Template resmi terlihat oleh semua departemen saat diterbitkan.",
+      "visibilityHint": "Terlihat oleh departemen Anda. Gunakan Bagikan agar terlihat oleh orang atau departemen lain."
+    }
   },
   "builder": {
     "untitledForm": "Formulir tanpa judul",
@@ -503,7 +550,26 @@
     "previewNote": "Beginilah responden melihat formulir Anda. Tombol kirim dinonaktifkan di pratinjau.",
     "desktop": "Desktop",
     "mobile": "Ponsel",
-    "saveAsTemplate": "Simpan sebagai template"
+    "saveAsTemplate": "Simpan sebagai template",
+    "banner": {
+      "add": "Tambah gambar banner",
+      "hint": "JPG, PNG, atau WebP · gambar lebar paling bagus",
+      "uploading": "Mengunggah…",
+      "wrongType": "Gunakan gambar JPG, PNG, atau WebP.",
+      "tooLarge": "Gambar terlalu besar.",
+      "uploadFailed": "Gagal mengunggah gambar. Coba lagi.",
+      "previewAlt": "Pratinjau banner",
+      "style": "Gaya banner",
+      "styles": {
+        "edge": "Penuh",
+        "inset": "Bingkai",
+        "overlay": "Judul di banner"
+      },
+      "change": "Ganti",
+      "remove": "Hapus"
+    },
+    "nameRequired": "Nama wajib diisi",
+    "nameRequiredHint": "Responden tidak bisa mengirim tanpa mengisi nama."
   },
   "respond": {
     "requiredNote": "Menandakan pertanyaan wajib",

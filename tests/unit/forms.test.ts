@@ -115,7 +115,10 @@ describe("saveFormSchema", () => {
       requires_login: false,
       limit_one_response: true,
       collect_name: false,
+      name_required: false,
       confirmation_message: null,
+      banner_path: null,
+      banner_style: "edge" as const,
     };
     const question = { id: crypto.randomUUID(), type: "scale", title: "x", description: null, required: false, options: null };
     expect(saveFormSchema.safeParse({ form, questions: [{ ...question, settings: { max: 10 } }] }).success).toBe(true);
@@ -137,7 +140,10 @@ describe("localProblems", () => {
       requires_login: false,
       limit_one_response: true,
       collect_name: false,
+      name_required: false,
       confirmation_message: null,
+      banner_path: null,
+      banner_style: "edge" as const,
     };
     const { codes, issues } = localProblems(form, [untitled, fewOptions]);
     expect(codes).toEqual(["department_required", "question_untitled", "choice_needs_options"]);

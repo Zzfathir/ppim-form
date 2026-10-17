@@ -344,3 +344,70 @@ ambiguous, or overridden by the owner. Newest phase at the bottom.
 - **Layout fix:** tables scroll inside `relative` wrappers. Without that, an absolutely positioned screen-reader
   label inside a table escaped its scroll container and made the whole page scroll sideways on phones. All admin
   pages were checked at 360 px.
+
+## Owner revision round (after Phase 6, 2026-10-17)
+
+These changes come from the owner after reviewing Phases 1–6. Where they go beyond or change the spec, **the owner's
+request wins** (the owner is the product owner); each change is noted here.
+
+- **App name is "PPIM Form"** (was "PPI Form"): changed in `src/config/brand.ts`, so every page, the title and the
+  footer follow. The organisation stays "PPI Malaysia" and the logo is unchanged. `spec/` and `CLAUDE.md` keep the
+  old name as a historical record.
+- **Respondent form redesign — "single sheet"** (owner: "don't make it really look like Google Form"):
+  - One white sheet instead of a card per question. Questions are numbered `01, 02…` in brand red and separated by
+    hairlines. Submit has an arrow.
+  - Linear scales are round number buttons instead of a radio row. The real radio input covers each button
+    invisibly, so clicks, keyboard and screen readers all work.
+  - Errors tint the question row and turn its number and underline red.
+  - The same sheet is used for the closed, sign-in required, already-responded and thank-you screens.
+  - The builder itself keeps its Google-Forms-like editing (spec principle 1: familiar for creators); only the
+    respondent side changed.
+- **Underline text fields** (`src/components/ui/line-field.tsx`): only a hairline. On focus a 2px brand-red line grows
+  from the centre (300 ms; no animation with `prefers-reduced-motion`), and it turns red when invalid.
+  Used in the respondent form (answers, "Other", the name field) and onboarding. The builder, admin pages and search
+  boxes keep boxed inputs (owner choice).
+- **"Name is required"** option: shown nested under *Ask for the respondent's name* (anonymous forms only).
+  - Stored as `forms.name_required`.
+  - The form shows `*` instead of "(Optional)".
+  - The server rejects a missing or blank name with error key `respondent_name`, so the field is highlighted inline.
+- **Banner image** (P1 item B14, pulled forward by the owner; **no theme color picker**: the accent stays PPIM red,
+  owner choice):
+  - Uploaded in the builder's title card (JPG/PNG/WebP). Resized in the browser to at most 1600 px wide and
+    re-encoded as WebP (JPEG fallback), so it loads fast on mobile data. Raw files up to 20 MB are accepted; the
+    stored file is capped at 5 MB.
+  - Stored in the public Supabase Storage bucket `form-banners` under `<form id>/<random uuid>.<ext>`. Respondents
+    are anonymous, so reads are public, but paths can't be guessed from the share link.
+  - Uploads are allowed only into the folder of a form the user can edit (storage policy). Autosave accepts a
+    banner only from the form's own folder (`invalid_banner` otherwise).
+  - Duplicates keep pointing at the source banner. Files are never overwritten or deleted when replaced or removed
+    (simplest; orphans are tiny at this scale).
+  - **Three styles chosen per form** (owner choice): *Edge-to-edge* (4:1 across the sheet top), *Inset* (rounded,
+    inside the padding) and *Title on banner* (taller image, dark gradient, white title and department on top).
+    The image is decorative (`alt=""`) because the title is always real text.
+- **Templates are now made by everyone** (replaces PRD §6.6 "managed only by superadmins"; owner's new model):
+  - **Official PPIM templates:** the 8 starters plus any the secretariat creates (`is_official`). Visible to every
+    admin when published; only superadmins edit them, publish/unpublish, or create them (Manage templates, or
+    "Save as template" on a form's detail page).
+  - **Department templates:** any admin can create one ("New template" on Templates, or "Save as template" in the
+    builder for any form they can read). The database stamps the creator and their department (trigger), so
+    nobody can create "official" or other-department templates.
+  - **Visible to** the creator's department, plus whoever it's **shared** with: specific admins and/or whole
+    departments (`template_shares`). Recipients can **Use** it or **Make a copy**; only the **creator** (or a
+    superadmin) can edit, share, unshare or delete it. Recipients can't see the share list.
+  - Respondents see no templates (previously published ones were readable; they never needed them).
+  - **People picker for sharing:** admins now see the **names and departments (never emails)** of other active
+    admins through `share_directory()`. Previously they only saw their own department's names; needed to share
+    with a specific person.
+  - Deleting a template removes it for everyone it was shared with. Forms made from it are unaffected
+    (`template_id` → null).
+  - Templates page sections: Official PPIM · My templates · From my department · Shared with me. Superadmins see
+    every template in Manage templates (scope, creator, usage count, share count).
+  - One editor for everyone at `/templates/{id}` (creator or superadmin only; others are sent back to the gallery).
+    Department templates have no "Published" switch, only official ones do.
+- **RLS detail worth remembering:** a SELECT policy must not re-read its own table through a function. During
+  `INSERT … RETURNING` such a function can't see the new row, so the policy uses the row's own columns.
+  Checks against `profiles` in policies go through `SECURITY DEFINER` helpers (admins can only read their own
+  profile row).
+- **`npm run db:clean-tests`** removes users and data left by test runs from the local database, keeping real
+  (Google) accounts and the dev seed. Test runs create real users, so use this instead of `db:reset` once you've
+  signed in with Google locally.

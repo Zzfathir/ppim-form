@@ -1,5 +1,5 @@
 /**
- * Initial data for PPI Form. Safe to re-run: each table is only seeded when it
+ * Initial data for PPIM Form. Safe to re-run: each table is only seeded when it
  * is empty, so renames/archives made later by the secretary are never undone.
  *
  *   npm run db:seed            # departments, chapters, categories, templates
@@ -93,6 +93,8 @@ async function seedTemplates() {
       category_id: byName.get(t.category) ?? null,
       questions: toJson(t.questions),
       is_published: true,
+      // Starter templates are the secretariat's official set, visible to every department.
+      is_official: true,
     })),
   );
   if (error) throw error;

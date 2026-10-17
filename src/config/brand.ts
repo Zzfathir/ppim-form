@@ -6,7 +6,7 @@
  * uses the design tokens in globals.css, never these hex values directly.
  */
 export const brand = {
-  name: "PPI Form",
+  name: "PPIM Form",
   orgName: "PPI Malaysia",
   logo: "/logo.png",
   favicon: "/favicon.png",

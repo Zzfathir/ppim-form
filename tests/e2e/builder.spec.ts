@@ -91,7 +91,7 @@ test("new form → edit → autosave → reorder → publish → share → reloa
 test("a template pre-fills questions and category", async ({ page, baseURL }) => {
   await asAdmin(page, baseURL!, "template");
   await page.goto("/templates");
-  await page.getByRole("listitem").filter({ hasText: "Event feedback" }).getByRole("button", { name: "Use this template" }).click();
+  await page.getByRole("listitem").filter({ hasText: "Event feedback" }).getByRole("button", { name: "Use", exact: true }).click();
   await page.waitForURL(/\/forms\//);
   await expect(page.getByRole("textbox", { name: "Form title" })).toHaveValue("Event feedback");
   await expect(page.locator("#category")).toHaveText(/Feedback \/ evaluation/);

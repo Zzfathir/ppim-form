@@ -1,6 +1,6 @@
-# PPI Form
+# PPIM Form
 
-Google Forms–style form builder for PPI Malaysia, with a secretary dashboard that tracks which department makes
+Google Forms–style form builder for PPI Malaysia (app name: **PPIM Form**), with a secretary dashboard that tracks which department makes
 which forms. Specs: [`spec/PPI_Form_PRD.md`](spec/PPI_Form_PRD.md) and
 [`spec/PPI_Form_BUILD_PROMPT.md`](spec/PPI_Form_BUILD_PROMPT.md). Assumptions: [`DECISIONS.md`](DECISIONS.md).
 
@@ -35,6 +35,7 @@ Cloud, then restart with `npm run db:stop && npm run db:start`.
 | `npm run db:seed` | Base data only (departments, chapters, categories, templates); safe to re-run |
 | `npm run db:seed:dev` | Base data + sample admins, forms and responses (refuses non-local databases) |
 | `npm run db:reset` | Recreate the local DB from migrations and run the dev seed |
+| `npm run db:clean-tests` | Remove users/forms/templates left by test runs; keeps real (e.g. Google) accounts and the dev seed |
 | `npm run db:types` | Regenerate `src/lib/database.types.ts` from the local DB |
 
 ## Environment variables

@@ -184,15 +184,11 @@ describe("respondent", () => {
     expect(error).not.toBeNull();
   });
 
-  it("can read published templates only", async () => {
-    const svc = serviceClient();
-    const hidden = await svc.from("templates").insert({ title: "Hidden", is_published: false }).select("id").single();
-    const { data } = await respondent.client.from("templates").select("id, is_published");
-    expect(data!.length).toBeGreaterThan(0);
-    expect(data!.every((t) => t.is_published)).toBe(true);
+  it("can't read or create templates (templates are for admins)", async () => {
+    const { data } = await respondent.client.from("templates").select("id");
+    expect(data ?? []).toEqual([]);
     const write = await respondent.client.from("templates").insert({ title: "Mine" }).select();
     expect(write.error).not.toBeNull();
-    await svc.from("templates").delete().eq("id", hidden.data!.id);
   });
 });
 

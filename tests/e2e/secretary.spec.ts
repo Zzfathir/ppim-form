@@ -167,7 +167,7 @@ test("save a form as a template, publish it, and admins can use it", async ({ pa
 
   await page.goto(`/admin/forms/${form.id}`);
   await page.getByRole("button", { name: "Save as template" }).click();
-  await page.waitForURL(/\/admin\/templates\/[0-9a-f-]{36}$/);
+  await page.waitForURL(/\/templates\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("textbox", { name: "Template title" })).toHaveValue(title);
   await page.getByRole("switch", { name: "Published" }).click();
   await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 10_000 });

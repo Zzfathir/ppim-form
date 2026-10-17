@@ -4,10 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { CheckCircle2, Lock } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getRespondent } from "@/lib/public-form/request";
-import { loadPublicForm } from "@/lib/public-form/service";
+import { loadPublicForm, type PublicForm } from "@/lib/public-form/service";
 import { sharePath } from "@/lib/forms/share";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
-import { PublicShell, StateCard } from "@/components/public-form/public-shell";
+import { FormSheet, type SheetForm } from "@/components/form-renderer/form-sheet";
+import { PublicShell } from "@/components/public-form/public-shell";
 import { PublicFormClient } from "./public-form-client";
 
 // Forms are private to whoever has the link: keep them out of search engines.
@@ -17,6 +18,17 @@ export async function generateMetadata({ params }: PageProps<"/f/[slug]">): Prom
   return {
     title: form.state === "not_found" ? undefined : form.title,
     robots: { index: false, follow: false },
+  };
+}
+
+function sheet(form: Exclude<PublicForm, { state: "not_found" }>): SheetForm {
+  return {
+    title: form.title,
+    description: form.description,
+    departmentName: form.department?.name ?? null,
+    departmentColor: form.department?.color ?? null,
+    bannerUrl: form.bannerUrl,
+    bannerStyle: form.bannerStyle,
   };
 }
 
@@ -32,13 +44,15 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
   if (form.state === "closed") {
     return (
       <PublicShell>
-        <StateCard title={form.title} department={form.department}>
-          <p className="flex items-center gap-2 font-medium">
-            <Lock className="size-4 text-muted-foreground" aria-hidden />
-            {t("closedBody")}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("closedHint")}</p>
-        </StateCard>
+        <FormSheet form={sheet(form)}>
+          <div className="border-t px-5 py-6 sm:px-8">
+            <p className="flex items-center gap-2 font-medium">
+              <Lock className="size-4 text-muted-foreground" aria-hidden />
+              {t("closedBody")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("closedHint")}</p>
+          </div>
+        </FormSheet>
       </PublicShell>
     );
   }
@@ -46,14 +60,13 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
   if (form.state === "needs_login") {
     return (
       <PublicShell>
-        <StateCard title={form.title} department={form.department}>
-          {form.description && <p className="mb-4 text-sm whitespace-pre-wrap text-foreground/80">{form.description}</p>}
-          <div className="rounded-lg border bg-muted/40 p-4">
+        <FormSheet form={sheet(form)}>
+          <div className="border-t px-5 py-6 sm:px-8">
             <h2 className="font-semibold">{t("needsLoginTitle")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{t("needsLoginBody")}</p>
             <GoogleSignInButton returnTo={returnTo} className="mt-4 w-full sm:w-auto" />
           </div>
-        </StateCard>
+        </FormSheet>
       </PublicShell>
     );
   }
@@ -61,14 +74,18 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
   if (form.state === "already") {
     return (
       <PublicShell>
-        <StateCard title={form.title} department={form.department}>
-          <p className="flex items-center gap-2 font-medium">
-            <CheckCircle2 className="size-5 text-success" aria-hidden />
-            {t("alreadyTitle")}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("alreadyBody")}</p>
-          {user?.email && <AccountLine email={user.email} returnTo={returnTo} label={t("signedInAs", { email: user.email })} switchLabel={t("switchAccount")} />}
-        </StateCard>
+        <FormSheet form={sheet(form)} showDescription={false}>
+          <div className="border-t px-5 py-6 sm:px-8">
+            <p className="flex items-center gap-2 font-medium">
+              <CheckCircle2 className="size-5 text-success" aria-hidden />
+              {t("alreadyTitle")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("alreadyBody")}</p>
+            {user?.email && (
+              <AccountLine returnTo={returnTo} label={t("signedInAs", { email: user.email })} switchLabel={t("switchAccount")} />
+            )}
+          </div>
+        </FormSheet>
       </PublicShell>
     );
   }
@@ -78,19 +95,16 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
       <PublicFormClient
         slug={slug}
         form={{
-          title: form.title,
-          description: form.description,
-          departmentName: form.department?.name ?? null,
-          departmentColor: form.department?.color ?? null,
+          ...sheet(form),
           themeColor: "var(--brand-accent)",
           collectName: form.collectName,
+          nameRequired: form.nameRequired,
           requiresLogin: form.requiresLogin,
         }}
         questions={form.questions ?? []}
         accountLine={
           form.requiresLogin && user?.email ? (
             <AccountLine
-              email={user.email}
               returnTo={returnTo}
               label={t("signedInAs", { email: user.email })}
               switchLabel={t("switchAccount")}
@@ -103,20 +117,9 @@ export default async function PublicFormPage({ params }: PageProps<"/f/[slug]">)
   );
 }
 
-function AccountLine({
-  returnTo,
-  label,
-  switchLabel,
-  note,
-}: {
-  email: string;
-  returnTo: string;
-  label: string;
-  switchLabel: string;
-  note?: string;
-}) {
+function AccountLine({ returnTo, label, switchLabel, note }: { returnTo: string; label: string; switchLabel: string; note?: string }) {
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-t pt-3 text-sm">
+    <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
       <span className="font-medium">{label}</span>
       <form action="/auth/signout" method="post">
         <input type="hidden" name="returnTo" value={returnTo} />

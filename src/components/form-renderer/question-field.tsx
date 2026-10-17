@@ -3,26 +3,28 @@
 import { useTranslations } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import { LineInput, LineTextarea } from "@/components/ui/line-field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_SCALE } from "@/lib/questions";
 import type { AnswerError } from "@/lib/forms/answers";
 import { cn } from "@/lib/utils";
 import { OTHER, type FieldValue, type RenderQuestion } from "./types";
 
-const underline =
-  "rounded-none border-0 border-b bg-transparent px-0 shadow-none focus-visible:border-b-2 focus-visible:border-[var(--form-accent)] focus-visible:ring-0";
-
+/**
+ * One numbered question on the sheet. No card of its own: questions are
+ * separated by the sheet's dividers; errors tint the block and the number.
+ */
 export function QuestionField({
   question: q,
+  number,
   field,
   error,
   onChange,
   disabled,
 }: {
   question: RenderQuestion;
+  number: number;
   field: FieldValue;
   error?: AnswerError;
   onChange: (next: FieldValue) => void;
@@ -36,170 +38,207 @@ export function QuestionField({
   const options = (q.options ?? []).filter((o) => o.trim() !== "");
   const allowOther = q.type !== "dropdown" && q.settings.allow_other === true;
   const common = { "aria-labelledby": titleId, "aria-describedby": describedBy, "aria-invalid": error ? true : undefined };
+  const choiceRow = "flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 -mx-2 transition-colors hover:bg-muted/70";
 
   return (
-    <fieldset
-      id={`q-${q.id}`}
-      className={cn(
-        "rounded-xl border bg-card p-5 shadow-xs transition-colors sm:p-6",
-        error && "border-destructive/60 bg-destructive/[0.02]",
-      )}
-    >
-      <legend className="sr-only">{q.title}</legend>
-      <p id={titleId} className="text-base leading-snug font-medium whitespace-pre-wrap">
-        {q.title}
-        {q.required && (
-          <span className="ml-1 text-destructive" aria-label={t("required")}>
-            *
-          </span>
-        )}
-      </p>
-      {q.description && (
-        <p id={descId} className="mt-1 text-sm whitespace-pre-wrap text-muted-foreground">
-          {q.description}
+    <QuestionBlock id={`q-${q.id}`} number={number} error={Boolean(error)}>
+      <fieldset>
+        <legend className="sr-only">{q.title}</legend>
+        <p id={titleId} className="text-base leading-snug font-semibold whitespace-pre-wrap">
+          {q.title}
+          {q.required && (
+            <span className="ml-1 text-destructive" aria-label={t("required")}>
+              *
+            </span>
+          )}
         </p>
-      )}
-
-      <div className="mt-4">
-        {q.type === "short_text" && (
-          <Input
-            {...common}
-            value={(field.value as string) ?? ""}
-            onChange={(e) => onChange({ value: e.target.value })}
-            placeholder={t("yourAnswer")}
-            maxLength={500}
-            disabled={disabled}
-            className={cn(underline, "max-w-md")}
-          />
+        {q.description && (
+          <p id={descId} className="mt-1 text-sm whitespace-pre-wrap text-muted-foreground">
+            {q.description}
+          </p>
         )}
 
-        {q.type === "paragraph" && (
-          <Textarea
-            {...common}
-            value={(field.value as string) ?? ""}
-            onChange={(e) => onChange({ value: e.target.value })}
-            placeholder={t("yourAnswer")}
-            maxLength={5000}
-            rows={2}
-            disabled={disabled}
-            className={cn(underline, "field-sizing-content min-h-10 resize-none")}
-          />
-        )}
-
-        {q.type === "single_choice" && (
-          <div>
-            <RadioGroup
+        <div className="mt-4">
+          {q.type === "short_text" && (
+            <LineInput
               {...common}
-              value={field.otherSelected ? OTHER : ((field.value as string) ?? "")}
-              onValueChange={(v) =>
-                onChange(v === OTHER ? { ...field, value: undefined, otherSelected: true } : { value: v, other: field.other })
-              }
+              value={(field.value as string) ?? ""}
+              onChange={(e) => onChange({ value: e.target.value })}
+              placeholder={t("yourAnswer")}
+              maxLength={500}
               disabled={disabled}
-              className="gap-1"
-            >
-              {options.map((o, i) => (
-                <label key={i} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-1 hover:bg-muted/60">
-                  <RadioGroupItem value={o} />
-                  <span className="text-sm">{o}</span>
-                </label>
-              ))}
+              wrapperClassName="max-w-md"
+            />
+          )}
+
+          {q.type === "paragraph" && (
+            <LineTextarea
+              {...common}
+              value={(field.value as string) ?? ""}
+              onChange={(e) => onChange({ value: e.target.value })}
+              placeholder={t("yourAnswer")}
+              maxLength={5000}
+              rows={2}
+              disabled={disabled}
+            />
+          )}
+
+          {q.type === "single_choice" && (
+            <div>
+              <RadioGroup
+                {...common}
+                value={field.otherSelected ? OTHER : ((field.value as string) ?? "")}
+                onValueChange={(v) =>
+                  onChange(v === OTHER ? { ...field, value: undefined, otherSelected: true } : { value: v, other: field.other })
+                }
+                disabled={disabled}
+                className="gap-0.5"
+              >
+                {options.map((o, i) => (
+                  <label key={i} className={choiceRow}>
+                    <RadioGroupItem value={o} />
+                    <span className="text-[15px]">{o}</span>
+                  </label>
+                ))}
+                {allowOther && (
+                  <div className="-mx-2 flex min-h-11 items-center gap-3 px-2">
+                    <RadioGroupItem value={OTHER} aria-label={t("otherInput")} />
+                    <span className="shrink-0 text-[15px]">{t("other")}</span>
+                    <LineInput
+                      aria-label={t("otherInput")}
+                      value={field.other ?? ""}
+                      onChange={(e) => onChange({ value: undefined, other: e.target.value, otherSelected: true })}
+                      maxLength={500}
+                      disabled={disabled}
+                      className="h-9 py-1"
+                      wrapperClassName="flex-1"
+                    />
+                  </div>
+                )}
+              </RadioGroup>
+              {!q.required && (field.value || field.otherSelected) && (
+                <ClearButton onClick={() => onChange({})} disabled={disabled} label={t("clearSelection")} />
+              )}
+            </div>
+          )}
+
+          {q.type === "multiple_choice" && (
+            <div role="group" {...common} className="grid gap-0.5">
+              {options.map((o, i) => {
+                const selected = Array.isArray(field.value) && field.value.includes(o);
+                return (
+                  <label key={i} className={choiceRow}>
+                    <Checkbox
+                      checked={selected}
+                      disabled={disabled}
+                      onCheckedChange={(checked) => {
+                        const current = Array.isArray(field.value) ? field.value : [];
+                        onChange({ ...field, value: checked ? [...current, o] : current.filter((v) => v !== o) });
+                      }}
+                    />
+                    <span className="text-[15px]">{o}</span>
+                  </label>
+                );
+              })}
               {allowOther && (
-                <div className="flex min-h-11 items-center gap-3 px-1">
-                  <RadioGroupItem value={OTHER} aria-label={t("otherInput")} />
-                  <span className="shrink-0 text-sm">{t("other")}</span>
-                  <Input
+                <div className="-mx-2 flex min-h-11 items-center gap-3 px-2">
+                  <Checkbox
+                    aria-label={t("otherInput")}
+                    checked={field.otherSelected ?? false}
+                    disabled={disabled}
+                    onCheckedChange={(checked) => onChange({ ...field, otherSelected: checked === true })}
+                  />
+                  <span className="shrink-0 text-[15px]">{t("other")}</span>
+                  <LineInput
                     aria-label={t("otherInput")}
                     value={field.other ?? ""}
-                    onChange={(e) => onChange({ value: undefined, other: e.target.value, otherSelected: true })}
+                    onChange={(e) => onChange({ ...field, other: e.target.value, otherSelected: e.target.value !== "" || field.otherSelected })}
                     maxLength={500}
                     disabled={disabled}
-                    className={cn(underline, "h-8")}
+                    className="h-9 py-1"
+                    wrapperClassName="flex-1"
                   />
                 </div>
               )}
-            </RadioGroup>
-            {!q.required && (field.value || field.otherSelected) && (
-              <ClearButton onClick={() => onChange({})} disabled={disabled} label={t("clearSelection")} />
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {q.type === "multiple_choice" && (
-          <div role="group" {...common} className="grid gap-1">
-            {options.map((o, i) => {
-              const selected = Array.isArray(field.value) && field.value.includes(o);
-              return (
-                <label key={i} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-1 hover:bg-muted/60">
-                  <Checkbox
-                    checked={selected}
-                    disabled={disabled}
-                    onCheckedChange={(checked) => {
-                      const current = Array.isArray(field.value) ? field.value : [];
-                      onChange({ ...field, value: checked ? [...current, o] : current.filter((v) => v !== o) });
-                    }}
-                  />
-                  <span className="text-sm">{o}</span>
-                </label>
-              );
-            })}
-            {allowOther && (
-              <div className="flex min-h-11 items-center gap-3 px-1">
-                <Checkbox
-                  aria-label={t("otherInput")}
-                  checked={field.otherSelected ?? false}
-                  disabled={disabled}
-                  onCheckedChange={(checked) => onChange({ ...field, otherSelected: checked === true })}
-                />
-                <span className="shrink-0 text-sm">{t("other")}</span>
-                <Input
-                  aria-label={t("otherInput")}
-                  value={field.other ?? ""}
-                  onChange={(e) => onChange({ ...field, other: e.target.value, otherSelected: e.target.value !== "" || field.otherSelected })}
-                  maxLength={500}
-                  disabled={disabled}
-                  className={cn(underline, "h-8")}
-                />
-              </div>
-            )}
-          </div>
-        )}
+          {q.type === "dropdown" && (
+            <Select value={(field.value as string) ?? ""} onValueChange={(v) => onChange({ value: v })} disabled={disabled}>
+              <SelectTrigger {...common} className="h-10 w-full max-w-xs">
+                <SelectValue placeholder={t("choose")} />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((o, i) => (
+                  <SelectItem key={i} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-        {q.type === "dropdown" && (
-          <Select value={(field.value as string) ?? ""} onValueChange={(v) => onChange({ value: v })} disabled={disabled}>
-            <SelectTrigger {...common} className="w-full max-w-xs">
-              <SelectValue placeholder={t("choose")} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((o, i) => (
-                <SelectItem key={i} value={o}>
-                  {o}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+          {q.type === "scale" && <ScaleField q={q} field={field} onChange={onChange} disabled={disabled} common={common} />}
 
-        {q.type === "scale" && <ScaleField q={q} field={field} onChange={onChange} disabled={disabled} common={common} />}
+          {q.type === "date" && (
+            <LineInput
+              {...common}
+              type="date"
+              value={(field.value as string) ?? ""}
+              onChange={(e) => onChange({ value: e.target.value })}
+              disabled={disabled}
+              wrapperClassName="inline-block w-auto"
+              className="w-auto"
+            />
+          )}
+        </div>
 
-        {q.type === "date" && (
-          <Input
-            {...common}
-            type="date"
-            value={(field.value as string) ?? ""}
-            onChange={(e) => onChange({ value: e.target.value })}
-            disabled={disabled}
-            className={cn(underline, "w-auto")}
-          />
-        )}
-      </div>
+        {error && <FieldError id={errId} message={t(`errors.${error}`)} />}
+      </fieldset>
+    </QuestionBlock>
+  );
+}
 
-      {error && (
-        <p id={errId} role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive">
-          <AlertCircle className="size-4 shrink-0" aria-hidden />
-          {t(`errors.${error}`)}
-        </p>
+/** Numbered row on the sheet ("01", "02", …). `number = 0` renders an unnumbered row. */
+export function QuestionBlock({
+  id,
+  number,
+  error,
+  children,
+}: {
+  id?: string;
+  number: number;
+  error?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <li
+      id={id}
+      className={cn(
+        "grid scroll-mt-24 grid-cols-[2rem_minmax(0,1fr)] gap-x-2 px-5 py-6 transition-colors sm:grid-cols-[2.75rem_minmax(0,1fr)] sm:px-8",
+        error && "bg-destructive/[0.035]",
       )}
-    </fieldset>
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "pt-0.5 font-heading text-sm font-bold tabular-nums",
+          error ? "text-destructive" : number > 0 ? "text-[var(--form-accent,var(--brand-accent))]" : "text-muted-foreground/60",
+        )}
+      >
+        {number > 0 ? String(number).padStart(2, "0") : "—"}
+      </span>
+      <div className="min-w-0">{children}</div>
+    </li>
+  );
+}
+
+export function FieldError({ id, message }: { id: string; message: string }) {
+  return (
+    <p id={id} role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive">
+      <AlertCircle className="size-4 shrink-0" aria-hidden />
+      {message}
+    </p>
   );
 }
 
@@ -220,48 +259,60 @@ function ScaleField({
   const min = q.settings.min ?? DEFAULT_SCALE.min;
   const max = q.settings.max ?? DEFAULT_SCALE.max;
   const values = Array.from({ length: max - min + 1 }, (_, i) => String(min + i));
+  const selected = (field.value as string) ?? "";
 
   return (
-    <div className="@container">
+    <div>
       <RadioGroup
         {...common}
-        value={(field.value as string) ?? ""}
+        value={selected}
         onValueChange={(v) => onChange({ value: v })}
         disabled={disabled}
-        className="flex flex-wrap items-end justify-between gap-y-3 @md:flex-nowrap"
+        className="flex flex-wrap gap-2"
       >
-        {q.settings.min_label && (
-          <span className="order-first basis-full text-xs text-muted-foreground @md:order-none @md:basis-auto @md:self-end @md:pb-1 @md:text-sm">
-            {q.settings.min_label}
-          </span>
-        )}
         {values.map((v) => (
-          <label key={v} className="flex min-w-9 flex-1 cursor-pointer flex-col items-center gap-2 py-1">
-            <span className="text-sm">{v}</span>
-            <RadioGroupItem value={v} />
+          <label
+            key={v}
+            className={cn(
+              "relative flex size-11 cursor-pointer items-center justify-center rounded-full border text-sm font-semibold tabular-nums transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+              selected === v
+                ? "border-[var(--form-accent,var(--brand-accent))] bg-[var(--form-accent,var(--brand-accent))] text-white"
+                : "hover:border-foreground/40 hover:bg-muted/60",
+            )}
+          >
+            {/* The real radio covers the pill invisibly: clickable, focusable and announced as "4". */}
+            <RadioGroupItem value={v} className="absolute inset-0 size-full cursor-pointer rounded-full border-0 opacity-0" />
+            {v}
           </label>
         ))}
-        {q.settings.max_label && (
-          <span className="basis-full text-right text-xs text-muted-foreground @md:basis-auto @md:self-end @md:pb-1 @md:text-sm">
-            {q.settings.max_label}
-          </span>
-        )}
       </RadioGroup>
-      {!q.required && field.value && (
-        <ClearButton onClick={() => onChange({})} disabled={disabled} label={t("clearSelection")} />
+      {(q.settings.min_label || q.settings.max_label) && (
+        <p className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
+          {q.settings.min_label && (
+            <span>
+              {min} = {q.settings.min_label}
+            </span>
+          )}
+          {q.settings.max_label && (
+            <span className="ml-auto text-right">
+              {max} = {q.settings.max_label}
+            </span>
+          )}
+        </p>
       )}
+      {!q.required && field.value && <ClearButton onClick={() => onChange({})} disabled={disabled} label={t("clearSelection")} />}
     </div>
   );
 }
 
 function ClearButton({ onClick, disabled, label }: { onClick: () => void; disabled?: boolean; label: string }) {
   return (
-    <div className="mt-2 flex justify-end">
+    <div className="mt-2">
       <button
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className="rounded px-2 py-1 text-sm font-medium text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+        className="rounded px-1 py-1 text-sm font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
       >
         {label}
       </button>

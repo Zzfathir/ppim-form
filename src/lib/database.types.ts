@@ -107,14 +107,14 @@ isOneToOne: false
                   ]
                 },"forms": {
                   Row: {
-                    "category_id": string | null,"chapter_id": string | null,"closed_at": string | null,"closes_at": string | null,"collect_name": boolean,"confirmation_message": string | null,"created_at": string,"deleted_at": string | null,"department_id": string | null,"description": string | null,"id": string,"internal_note": string | null,"limit_one_response": boolean,"owner_id": string,"published_at": string | null,"requires_login": boolean,"share_slug": string,"status": Database["public"]['Enums']["form_status"],"template_id": string | null,"theme_color": string,"title": string,"updated_at": string
+                    "banner_path": string | null,"banner_style": string,"category_id": string | null,"chapter_id": string | null,"closed_at": string | null,"closes_at": string | null,"collect_name": boolean,"confirmation_message": string | null,"created_at": string,"deleted_at": string | null,"department_id": string | null,"description": string | null,"id": string,"internal_note": string | null,"limit_one_response": boolean,"name_required": boolean,"owner_id": string,"published_at": string | null,"requires_login": boolean,"share_slug": string,"status": Database["public"]['Enums']["form_status"],"template_id": string | null,"theme_color": string,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"owner_id": string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
+                    "banner_path"?: string | null,"banner_style"?: string,"category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"name_required"?: boolean,"owner_id": string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"owner_id"?: string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
+                    "banner_path"?: string | null,"banner_style"?: string,"category_id"?: string | null,"chapter_id"?: string | null,"closed_at"?: string | null,"closes_at"?: string | null,"collect_name"?: boolean,"confirmation_message"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"internal_note"?: string | null,"limit_one_response"?: boolean,"name_required"?: boolean,"owner_id"?: string,"published_at"?: string | null,"requires_login"?: boolean,"share_slug"?: string,"status"?: Database["public"]['Enums']["form_status"],"template_id"?: string | null,"theme_color"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -259,16 +259,66 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"templates": {
+                },"template_shares": {
                   Row: {
-                    "category_id": string | null,"created_at": string,"created_by": string | null,"description": string | null,"id": string,"is_published": boolean,"questions": NonNullable<Json>,"title": string
+                    "created_at": string,"created_by": string | null,"department_id": string | null,"id": string,"profile_id": string | null,"template_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title": string
+                    "created_at"?: string,"created_by"?: string | null,"department_id"?: string | null,"id"?: string,"profile_id"?: string | null,"template_id": string
                   }
                   Update: {
-                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"id"?: string,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title"?: string
+                    "created_at"?: string,"created_by"?: string | null,"department_id"?: string | null,"id"?: string,"profile_id"?: string | null,"template_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "template_shares_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_shares_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_shares_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_shares_profile_id_fkey"
+      columns: ["profile_id"]
+isOneToOne: false
+      referencedRelation: "department_members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_shares_profile_id_fkey"
+      columns: ["profile_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_shares_template_id_fkey"
+      columns: ["template_id"]
+isOneToOne: false
+      referencedRelation: "templates"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"templates": {
+                  Row: {
+                    "category_id": string | null,"created_at": string,"created_by": string | null,"department_id": string | null,"description": string | null,"id": string,"is_official": boolean,"is_published": boolean,"questions": NonNullable<Json>,"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"is_official"?: boolean,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"department_id"?: string | null,"description"?: string | null,"id"?: string,"is_official"?: boolean,"is_published"?: boolean,"questions"?: NonNullable<Json>,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -288,6 +338,12 @@ isOneToOne: false
       columns: ["created_by"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "templates_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
       referencedColumns: ["id"]
     }
                   ]
@@ -350,8 +406,14 @@ isOneToOne: false
 "can_edit_form":
 { Args: { "p_form_id": string }; Returns: boolean
                            },
+"can_edit_template":
+{ Args: { "p_template_id": string }; Returns: boolean
+                           },
 "can_read_form":
 { Args: { "p_form_id": string }; Returns: boolean
+                           },
+"can_view_template":
+{ Args: { "p_template_id": string }; Returns: boolean
                            },
 "complete_onboarding":
 { Args: { "p_chapter_id"?: string,"p_department_id": string,"p_full_name": string }; Returns: {
@@ -419,8 +481,16 @@ isOneToOne: false
 "save_form":
 { Args: { "p_form": Json,"p_form_id": string,"p_questions": Json }; Returns: string
                            },
+"share_directory":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "department_id": string,"department_name": string,"full_name": string,"id": string
+            }[]
+                           },
 "soft_delete_form":
 { Args: { "p_form_id": string }; Returns: undefined
+                           },
+"template_shared_with_me":
+{ Args: { "p_template_id": string }; Returns: boolean
                            },
 "transfer_forms":
 { Args: { "p_from": string,"p_to": string }; Returns: number

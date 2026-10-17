@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { CheckCircle2 } from "lucide-react";
 import { FormRenderer, type SubmitPayload, type SubmitResult } from "@/components/form-renderer/form-renderer";
+import { FormSheet } from "@/components/form-renderer/form-sheet";
 import type { RenderForm, RenderQuestion } from "@/components/form-renderer/types";
 
 type Done = { kind: "thanks"; message: string | null } | { kind: "already" } | { kind: "closed" };
@@ -59,24 +60,24 @@ export function PublicFormClient({
 
   if (done) {
     return (
-      <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-xl border bg-card shadow-xs" role="status">
-        <div className="h-2.5 bg-brand" aria-hidden />
-        <div className="p-5 sm:p-6">
-          <h1 className="text-2xl leading-tight font-bold break-words sm:text-3xl">{form.title}</h1>
-          {done.kind === "thanks" && (
-            <p className="mt-4 flex items-start gap-2 whitespace-pre-wrap">
-              <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
-              {done.message || t("thankYouDefault")}
-            </p>
-          )}
-          {done.kind === "already" && (
-            <>
-              <p className="mt-4 font-medium">{t("alreadyTitle")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t("alreadyBody")}</p>
-            </>
-          )}
-          {done.kind === "closed" && <p className="mt-4 text-sm">{t("errors.closed")}</p>}
-        </div>
+      <div role="status">
+        <FormSheet form={form} showDescription={false}>
+          <div className="border-t px-5 py-6 sm:px-8">
+            {done.kind === "thanks" && (
+              <p className="flex items-start gap-2 text-[15px] whitespace-pre-wrap">
+                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
+                {done.message || t("thankYouDefault")}
+              </p>
+            )}
+            {done.kind === "already" && (
+              <>
+                <p className="font-medium">{t("alreadyTitle")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t("alreadyBody")}</p>
+              </>
+            )}
+            {done.kind === "closed" && <p className="text-sm">{t("errors.closed")}</p>}
+          </div>
+        </FormSheet>
       </div>
     );
   }
@@ -84,11 +85,7 @@ export function PublicFormClient({
   return (
     <>
       {/* Outside the response <form>: the account line contains its own sign-out form. */}
-      {accountLine && (
-        <div className="mx-auto mb-3 w-full max-w-[720px] rounded-xl border bg-card px-5 pb-3 shadow-xs sm:px-6 [&>div]:mt-0 [&>div]:border-t-0">
-          {accountLine}
-        </div>
-      )}
+      {accountLine && <div className="mx-auto mb-3 w-full max-w-[720px] rounded-2xl border bg-card px-5 pb-4 shadow-sm sm:px-8 [&>div]:mt-4">{accountLine}</div>}
       <FormRenderer form={form} questions={questions} onSubmit={submit} />
     </>
   );

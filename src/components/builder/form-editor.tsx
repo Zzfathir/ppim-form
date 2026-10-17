@@ -31,10 +31,12 @@ import { StatusBadge } from "@/components/status-badge";
 import { FormRenderer } from "@/components/form-renderer/form-renderer";
 import type { RenderForm } from "@/components/form-renderer/types";
 import { duplicateForm, publishForm, saveForm, setAcceptingResponses, type PublishProblem } from "@/app/(app)/forms/actions";
-import { saveFormAsTemplate } from "@/app/(app)/admin/actions";
+import { saveFormAsMyTemplate } from "@/app/(app)/templates/actions";
 import type { Lookups, FormStatus, Option } from "@/lib/forms/queries";
 import { LIMITS, type DraftForm, type DraftQuestion, type SaveFormPayload } from "@/lib/forms/schema";
+import { bannerUrl } from "@/lib/forms/banner";
 import { cn } from "@/lib/utils";
+import { BannerPicker } from "./banner-picker";
 import { PreviewDialog } from "./preview-dialog";
 import { QuestionCard } from "./question-card";
 import { localProblems } from "./question-meta";
@@ -56,7 +58,7 @@ export type FormEditorProps = {
   ownerName: string | null;
   backHref: string;
   initialTab?: "questions" | "responses" | "settings";
-  /** Superadmins can save any form as a template (O9). */
+  /** Any admin can save a form they can read as their own template (owner revision). */
   canSaveTemplate?: boolean;
 };
 
@@ -215,8 +217,11 @@ export function FormEditor(props: FormEditorProps) {
     description: form.description,
     departmentName: departmentOption?.name ?? null,
     departmentColor: departmentOption?.color ?? null,
+    bannerUrl: bannerUrl(form.banner_path),
+    bannerStyle: form.banner_style,
     themeColor: "var(--brand-accent)",
     collectName: form.collect_name,
+    nameRequired: form.name_required,
     requiresLogin: form.requires_login,
   };
   const renderQuestions = questions.map((q) => ({ ...q, title: q.title || t("questionPlaceholder") }));
@@ -264,8 +269,8 @@ export function FormEditor(props: FormEditorProps) {
                   onClick={() =>
                     startTransition(async () => {
                       await flush();
-                      const res = await saveFormAsTemplate(formId);
-                      if (res.ok) router.push(`/admin/templates/${res.id}`);
+                      const res = await saveFormAsMyTemplate(formId);
+                      if (res.ok) router.push(`/templates/${res.id}`);
                       else reportError(res.error);
                     })
                   }
@@ -377,6 +382,7 @@ export function FormEditor(props: FormEditorProps) {
           ) : (
             <>
               <HeaderCard
+                formId={formId}
                 form={form}
                 lookups={lookups}
                 onChange={patchForm}
@@ -475,11 +481,13 @@ function isAccountProblem(p: string) {
 }
 
 function HeaderCard({
+  formId,
   form,
   lookups,
   onChange,
   highlight,
 }: {
+  formId: string;
   form: DraftForm;
   lookups: Lookups;
   onChange: (patch: Partial<DraftForm>) => void;
@@ -490,6 +498,7 @@ function HeaderCard({
     <section className="overflow-hidden rounded-xl border bg-card shadow-xs" aria-label={t("formTitle")}>
       <div className="h-2.5 bg-brand" aria-hidden />
       <div className="space-y-3 p-4 sm:p-6">
+        <BannerPicker formId={formId} path={form.banner_path} style={form.banner_style} onChange={onChange} />
         <Textarea
           value={form.title}
           onChange={(e) => onChange({ title: e.target.value })}

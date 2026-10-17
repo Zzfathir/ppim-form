@@ -67,7 +67,18 @@ describe("loadPublicForm states", () => {
     const f = await publicForm();
     const res = await loadPublicForm(db(), f.slug, null);
     expect(res.state).toBe("open");
-    expect(Object.keys(res).sort()).toEqual(["collectName", "department", "description", "questions", "requiresLogin", "state", "title"]);
+    expect(Object.keys(res).sort()).toEqual([
+      "bannerStyle",
+      "bannerUrl",
+      "collectName",
+      "department",
+      "description",
+      "nameRequired",
+      "questions",
+      "requiresLogin",
+      "state",
+      "title",
+    ]);
     if (res.state === "not_found") throw new Error();
     expect(res.questions!.map((q) => q.title)).toEqual(["Name", "Coming?", "Rate"]);
     expect(Object.keys(res.questions![0]).sort()).toEqual(["description", "id", "options", "required", "settings", "title", "type"]);

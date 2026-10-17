@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Database } from "@/lib/database.types";
 import { ANSWER_LIMITS, validateAnswers, type AnswerError } from "@/lib/forms/answers";
 import { toDraftQuestion } from "@/lib/forms/schema";
+import { bannerUrl, type BannerStyle } from "@/lib/forms/banner";
 import type { RenderQuestion } from "@/components/form-renderer/types";
 
 /**
@@ -24,18 +25,24 @@ export type PublicForm =
       title: string;
       description: string | null;
       department: { name: string; color: string } | null;
+      bannerUrl: string | null;
+      bannerStyle: BannerStyle;
       requiresLogin: boolean;
       collectName: boolean;
+      nameRequired: boolean;
       /** Only present when state = "open". */
       questions?: RenderQuestion[];
     };
+
+/** Error key for the respondent name field (matches the form renderer). */
+export const NAME_ERROR_KEY = "respondent_name";
 
 /** Submissions per IP per form per window. Generous on purpose: many people share one IP at events. */
 export const RATE_LIMIT = { hits: 60, windowSeconds: 600 } as const;
 const SLUG_RE = /^[A-Za-z0-9]{6,20}$/;
 
 const FORM_COLUMNS =
-  "id, title, description, status, closes_at, deleted_at, requires_login, limit_one_response, collect_name, confirmation_message, departments(name, color)";
+  "id, title, description, status, closes_at, deleted_at, requires_login, limit_one_response, collect_name, name_required, confirmation_message, banner_path, banner_style, departments(name, color)";
 
 async function findForm(db: Db, slug: string) {
   if (!SLUG_RE.test(slug)) return null;
@@ -89,18 +96,21 @@ export async function loadPublicForm(db: Db, slug: string, user: Respondent): Pr
     isAccepting(form) && form.requires_login && form.limit_one_response && user ? await hasResponded(db, form.id, user.id) : false;
   const state = stateOf(form, user, already);
   const department = form.departments ? { name: form.departments.name, color: form.departments.color } : null;
+  const banner = { bannerUrl: bannerUrl(form.banner_path), bannerStyle: form.banner_style as BannerStyle };
 
   if (state === "closed") {
-    // Not accepting: only the title and department (build prompt §7).
-    return { state, title: form.title, description: null, department, requiresLogin: false, collectName: false };
+    // Not accepting: only the title, department and banner (build prompt §7).
+    return { state, title: form.title, description: null, department, ...banner, requiresLogin: false, collectName: false, nameRequired: false };
   }
   return {
     state,
     title: form.title,
     description: form.description,
     department,
+    ...banner,
     requiresLogin: form.requires_login,
     collectName: form.collect_name && !form.requires_login,
+    nameRequired: form.collect_name && form.name_required && !form.requires_login,
     questions: state === "open" ? await loadQuestions(db, form.id) : undefined,
   };
 }
@@ -156,7 +166,10 @@ export async function submitPublicResponse(
   // 3. Validate answers against the form's current questions.
   const questions = await loadQuestions(db, form.id);
   const result = validateAnswers(questions, parsed.data.answers);
-  if (!result.ok) return { status: 422, body: { ok: false, error: "invalid_answers", errors: result.errors } };
+  const errors: Record<string, AnswerError> = { ...result.errors };
+  const name = parsed.data.name?.trim().slice(0, ANSWER_LIMITS.name) || null;
+  if (!form.requires_login && form.collect_name && form.name_required && !name) errors[NAME_ERROR_KEY] = "required";
+  if (Object.keys(errors).length > 0) return { status: 422, body: { ok: false, error: "invalid_answers", errors } };
 
   // 5–6. Identity and dedupe.
   let respondent_id: string | null = null;
@@ -169,7 +182,7 @@ export async function submitPublicResponse(
     respondent_name = input.user.name;
     if (form.limit_one_response) dedupe_key = input.user.id;
   } else if (form.collect_name) {
-    respondent_name = parsed.data.name?.trim().slice(0, ANSWER_LIMITS.name) || null;
+    respondent_name = name;
   }
 
   // 7. Insert. A unique violation on (form_id, dedupe_key) means "already responded".

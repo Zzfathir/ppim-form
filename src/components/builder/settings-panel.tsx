@@ -46,14 +46,27 @@ export function SettingsPanel({
               nested
             />
           ) : (
-            <SettingRow
-              id="collect_name"
-              label={t("collectName")}
-              hint={t("collectNameHint")}
-              checked={form.collect_name}
-              disabled={readOnly}
-              onChange={(v) => onChange({ collect_name: v })}
-            />
+            <>
+              <SettingRow
+                id="collect_name"
+                label={t("collectName")}
+                hint={t("collectNameHint")}
+                checked={form.collect_name}
+                disabled={readOnly}
+                onChange={(v) => onChange({ collect_name: v, ...(v ? {} : { name_required: false }) })}
+              />
+              {form.collect_name && (
+                <SettingRow
+                  id="name_required"
+                  label={t("nameRequired")}
+                  hint={t("nameRequiredHint")}
+                  checked={form.name_required}
+                  disabled={readOnly}
+                  onChange={(v) => onChange({ name_required: v })}
+                  nested
+                />
+              )}
+            </>
           )}
         </div>
       </section>

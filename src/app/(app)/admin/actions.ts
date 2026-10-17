@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { errorCode, type ErrorCode } from "@/lib/action-errors";
-import { draftQuestionSchema, LIMITS, toDraftQuestion, toTemplateQuestion } from "@/lib/forms/schema";
+import { toDraftQuestion, toTemplateQuestion } from "@/lib/forms/schema";
 import { toJson } from "@/lib/questions";
 import type { Database } from "@/lib/database.types";
 
@@ -217,40 +217,17 @@ export async function deleteLookup(table: LookupTable, lookupId: string): Promis
 // Templates
 // --------------------------------------------------------------------------
 
-const templateSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  description: z.string().max(LIMITS.formDescription).nullable(),
-  category_id: z.uuid().nullable(),
-  is_published: z.boolean(),
-  questions: z.array(draftQuestionSchema).max(LIMITS.questions),
-});
-
+/** "New official template" (secretariat): visible to every department once published. */
 export async function createTemplate(): Promise<void> {
   const ctx = await superadminClient();
   if (!ctx) throw new Error("forbidden");
   const { data, error } = await ctx.supabase
     .from("templates")
-    .insert({ title: "Untitled template", is_published: false, created_by: ctx.profile.id, questions: [] })
+    .insert({ title: "Untitled template", is_published: false, is_official: true, created_by: ctx.profile.id, questions: [] })
     .select("id")
     .single();
   if (error || !data) throw new Error(errorCode(error));
-  redirect(`/admin/templates/${data.id}`);
-}
-
-export async function saveTemplate(templateId: string, values: z.input<typeof templateSchema>): Promise<AdminResult> {
-  const parsed = templateSchema.safeParse(values);
-  if (!id.safeParse(templateId).success || !parsed.success) return fail("invalid");
-  const ctx = await superadminClient();
-  if (!ctx) return fail("forbidden");
-  const questions = parsed.data.questions.map(toTemplateQuestion);
-  const { error } = await ctx.supabase
-    .from("templates")
-    .update({ ...parsed.data, questions: toJson(questions) })
-    .eq("id", templateId);
-  if (error) return fail(errorCode(error));
-  revalidatePath("/admin/templates");
-  revalidatePath("/templates");
-  return { ok: true };
+  redirect(`/templates/${data.id}`);
 }
 
 export async function setTemplatePublished(templateId: string, published: boolean): Promise<AdminResult> {
@@ -262,17 +239,7 @@ export async function setTemplatePublished(templateId: string, published: boolea
   return done("/admin/templates", "/templates");
 }
 
-export async function deleteTemplate(templateId: string): Promise<AdminResult> {
-  if (!id.safeParse(templateId).success) return fail("invalid");
-  const ctx = await superadminClient();
-  if (!ctx) return fail("forbidden");
-  // Forms keep working: forms.template_id is set to null (usage history for this template is lost).
-  const { error } = await ctx.supabase.from("templates").delete().eq("id", templateId);
-  if (error) return fail(errorCode(error));
-  return done("/admin/templates", "/templates");
-}
-
-/** "Save this form as a template" (O9): copies title, description, category and questions, unpublished. */
+/** Secretariat "Save as official template" (O9): copies title, description, category and questions, unpublished. */
 export async function saveFormAsTemplate(formId: string): Promise<AdminResult<{ id: string }>> {
   if (!id.safeParse(formId).success) return fail("invalid");
   const ctx = await superadminClient();
@@ -291,6 +258,7 @@ export async function saveFormAsTemplate(formId: string): Promise<AdminResult<{ 
       category_id: form.category_id,
       questions: toJson(templateQuestions),
       is_published: false,
+      is_official: true,
       created_by: ctx.profile.id,
     })
     .select("id")

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getLookups } from "@/lib/forms/queries";
 import { toDraftQuestion } from "@/lib/forms/schema";
 import { shareUrl } from "@/lib/forms/share";
+import { bannerUrl, type BannerStyle } from "@/lib/forms/banner";
 import { AdminFormDetail } from "@/components/admin/form-detail";
 
 export const metadata: Metadata = { title: "Form" };
@@ -41,6 +42,9 @@ export default async function AdminFormPage({ params }: PageProps<"/admin/forms/
         requires_login: form.requires_login,
         limit_one_response: form.limit_one_response,
         collect_name: form.collect_name,
+        name_required: form.name_required,
+        banner_url: bannerUrl(form.banner_path),
+        banner_style: form.banner_style as BannerStyle,
         created_at: form.created_at,
         published_at: form.published_at,
         closed_at: form.closed_at,

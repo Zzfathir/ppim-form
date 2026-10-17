@@ -16,7 +16,8 @@
     "db:types": "supabase gen types typescript --local > src/lib/database.types.ts",
     "db:seed:dev": "tsx scripts/seed.ts --dev",
     "check:messages": "node scripts/check-messages.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:clean-tests": "tsx scripts/clean-test-data.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LineInput } from "@/components/ui/line-field";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { completeOnboarding, type OnboardingState } from "./actions";
@@ -36,7 +36,7 @@ export function OnboardingForm({
     <form action={formAction} className="mt-6 space-y-5" noValidate>
       <div className="space-y-2">
         <Label htmlFor="fullName">{t("fullName")}</Label>
-        <Input
+        <LineInput
           id="fullName"
           name="fullName"
           defaultValue={defaultName}

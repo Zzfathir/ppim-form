@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BANNER_STYLES } from "@/lib/forms/banner";
 import { DEFAULT_SCALE, QUESTION_TYPES, type QuestionSettings, type QuestionType, type TemplateQuestion } from "@/lib/questions";
 
 export const LIMITS = {
@@ -46,7 +47,13 @@ export const draftFormSchema = z.object({
   requires_login: z.boolean(),
   limit_one_response: z.boolean(),
   collect_name: z.boolean(),
+  name_required: z.boolean(),
   confirmation_message: z.string().max(LIMITS.confirmation).nullable(),
+  banner_path: z
+    .string()
+    .regex(/^[0-9a-f-]{36}\/[A-Za-z0-9._-]{1,100}$/)
+    .nullable(),
+  banner_style: z.enum(BANNER_STYLES),
 });
 
 export const saveFormSchema = z.object({

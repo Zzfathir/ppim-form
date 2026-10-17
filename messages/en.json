@@ -244,7 +244,8 @@
       "archiveTitle": "Archive this form?",
       "archiveBody": "It stops accepting responses and moves to the archive. You can restore it later.",
       "deletedToast": "Form deleted",
-      "archivedToast": "Form archived"
+      "archivedToast": "Form archived",
+      "settingNameRequired": "Anonymous, name required"
     },
     "errors": {
       "form_not_found": "That form doesn't exist anymore.",
@@ -352,20 +353,16 @@
     },
     "templates": {
       "title": "Manage templates",
-      "subtitle": "Published templates appear on the Templates page for every admin.",
-      "new": "New template",
+      "subtitle": "Every template: official PPIM templates and each department's own.",
+      "new": "New official template",
       "emptyTitle": "No templates",
-      "emptyBody": "Create one, or use “Save as template” on any form.",
+      "emptyBody": "Create an official template, or ask admins to save their forms as templates.",
       "questions": "{count, plural, one {# question} other {# questions}}",
       "usage": "{count, plural, =0 {not used yet} one {used by # form} other {used by # forms}}",
-      "published": "Published",
-      "publishedHint": "Unpublished templates are hidden from admins.",
-      "back": "Back to templates",
-      "untitled": "Untitled template",
-      "titleLabel": "Template title",
-      "category": "Category",
-      "delete": "Delete",
-      "deleteConfirm": "Delete this template? Forms made from it are not affected."
+      "official": "Official",
+      "by": "by {name}",
+      "shares": "{count, plural, one {shared # time} other {shared # times}}",
+      "published": "Published"
     }
   },
   "errors": {
@@ -392,13 +389,63 @@
   },
   "templates": {
     "title": "Templates",
-    "subtitle": "Start from a ready-made form, then change anything you like.",
+    "subtitle": "Start from a ready-made form, or build templates for your department.",
+    "new": "New template",
     "blank": "Blank form",
     "blankDescription": "Start from scratch.",
-    "use": "Use this template",
+    "use": "Use",
     "questionCount": "{count, plural, one {# question} other {# questions}}",
-    "emptyTitle": "No templates yet",
-    "emptyBody": "The secretariat hasn't published any templates."
+    "sectionOfficial": "Official PPIM templates",
+    "sectionOfficialHint": "Maintained by the secretariat, available to every department.",
+    "sectionMine": "My templates",
+    "sectionMineHint": "Your department sees these automatically. Share one to make it visible to others.",
+    "emptyMine": "No templates yet. Create one, or use “Save as template” on any of your forms.",
+    "sectionDepartment": "From my department",
+    "sectionDepartmentHint": "Made by colleagues in your department.",
+    "emptyDepartment": "Your colleagues haven't made any templates yet.",
+    "sectionShared": "Shared with me",
+    "sectionSharedHint": "Templates other departments shared with you or your department.",
+    "emptyShared": "Nothing has been shared with you yet.",
+    "untitled": "Untitled template",
+    "copyOf": "Copy of {title}",
+    "badgeOfficial": "Official",
+    "badgeDepartmentOnly": "My department",
+    "sharedCount": "{count, plural, one {Shared with # more} other {Shared with # more}}",
+    "actionsFor": "Actions for {title}",
+    "edit": "Edit",
+    "share": "Share…",
+    "copy": "Make a copy",
+    "delete": "Delete",
+    "deleteTitle": "Delete this template?",
+    "deleteBody": "“{title}” will be removed for everyone it's shared with. Forms already made from it are not affected.",
+    "deleted": "Template deleted",
+    "shareDialog": {
+      "title": "Share “{title}”",
+      "body": "Your department always sees this template. Add people or other departments who should see it too.",
+      "loading": "Loading…",
+      "current": "Shared with",
+      "none": "Only your department.",
+      "remove": "Stop sharing with {name}",
+      "people": "People",
+      "departments": "Departments",
+      "searchPeople": "Search by name or department",
+      "noPeople": "No matching people.",
+      "shareWith": "Share with {name}",
+      "add": "Add",
+      "alreadyShared": "Shared"
+    },
+    "editor": {
+      "back": "Back to templates",
+      "untitled": "Untitled template",
+      "share": "Share",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this template? Forms made from it are not affected.",
+      "titleLabel": "Template title",
+      "category": "Category",
+      "published": "Published",
+      "publishedHint": "Official templates are visible to every department when published.",
+      "visibilityHint": "Visible to your department. Use Share to show it to other people or departments."
+    }
   },
   "builder": {
     "untitledForm": "Untitled form",
@@ -503,7 +550,26 @@
     "previewNote": "This is how respondents see your form. Submitting is disabled in preview.",
     "desktop": "Desktop",
     "mobile": "Mobile",
-    "saveAsTemplate": "Save as template"
+    "saveAsTemplate": "Save as template",
+    "banner": {
+      "add": "Add banner image",
+      "hint": "JPG, PNG or WebP · wide images look best",
+      "uploading": "Uploading…",
+      "wrongType": "Use a JPG, PNG or WebP image.",
+      "tooLarge": "That image is too large.",
+      "uploadFailed": "Couldn't upload the image. Try again.",
+      "previewAlt": "Banner preview",
+      "style": "Banner style",
+      "styles": {
+        "edge": "Edge-to-edge",
+        "inset": "Inset",
+        "overlay": "Title on banner"
+      },
+      "change": "Change",
+      "remove": "Remove"
+    },
+    "nameRequired": "Name is required",
+    "nameRequiredHint": "Respondents can't submit without filling in their name."
   },
   "respond": {
     "requiredNote": "Indicates required question",

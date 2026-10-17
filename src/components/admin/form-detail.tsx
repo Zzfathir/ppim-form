@@ -27,6 +27,7 @@ import { StatusBadge } from "@/components/status-badge";
 import type { Lookups } from "@/lib/forms/queries";
 import type { DraftQuestion } from "@/lib/forms/schema";
 import type { FormStatus } from "@/lib/admin/types";
+import type { BannerStyle } from "@/lib/forms/banner";
 import {
   deleteFormAdmin,
   restoreDeletedForm,
@@ -48,6 +49,9 @@ type DetailForm = {
   requires_login: boolean;
   limit_one_response: boolean;
   collect_name: boolean;
+  name_required: boolean;
+  banner_url: string | null;
+  banner_style: BannerStyle;
   created_at: string;
   published_at: string | null;
   closed_at: string | null;
@@ -205,7 +209,9 @@ export function AdminFormDetail({
                     ? t("settingLoginOnce")
                     : t("settingLogin")
                   : form.collect_name
-                    ? t("settingAnonymousName")
+                    ? form.name_required
+                      ? t("settingNameRequired")
+                      : t("settingAnonymousName")
                     : t("settingAnonymous")}
               </dd>
             </dl>
@@ -320,7 +326,7 @@ export function AdminFormDetail({
                   onClick={() =>
                     startTransition(async () => {
                       const res = await saveFormAsTemplate(form.id);
-                      if (res.ok) router.push(`/admin/templates/${res.id}`);
+                      if (res.ok) router.push(`/templates/${res.id}`);
                       else toast.error(te(res.error));
                     })
                   }
@@ -345,8 +351,11 @@ export function AdminFormDetail({
               description: form.description,
               departmentName: department?.name ?? null,
               departmentColor: department?.color ?? null,
+              bannerUrl: form.banner_url,
+              bannerStyle: form.banner_style,
               themeColor: "var(--brand-accent)",
               collectName: form.collect_name,
+              nameRequired: form.name_required,
               requiresLogin: form.requires_login,
             }}
             questions={questions}

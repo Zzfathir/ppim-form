@@ -5,6 +5,7 @@ import { requireStaff } from "@/lib/auth";
 import { canEditForm, getBuilderData, getLookups } from "@/lib/forms/queries";
 import { shareUrl } from "@/lib/forms/share";
 import { FormEditor } from "@/components/builder/form-editor";
+import type { BannerStyle } from "@/lib/forms/banner";
 
 export async function generateMetadata({ params }: PageProps<"/forms/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -43,7 +44,10 @@ export default async function FormBuilderPage({ params, searchParams }: PageProp
         requires_login: form.requires_login,
         limit_one_response: form.limit_one_response,
         collect_name: form.collect_name,
+        name_required: form.name_required,
         confirmation_message: form.confirmation_message,
+        banner_path: form.banner_path,
+        banner_style: form.banner_style as BannerStyle,
       }}
       initialQuestions={data.questions}
       initialStatus={form.status}
@@ -56,7 +60,7 @@ export default async function FormBuilderPage({ params, searchParams }: PageProp
       ownerName={data.ownerName}
       backHref={profile.role === "superadmin" ? "/admin/forms" : "/dashboard"}
       initialTab={initialTab}
-      canSaveTemplate={profile.role === "superadmin" && profile.status === "active"}
+      canSaveTemplate={profile.status !== "suspended"}
     />
   );
 }

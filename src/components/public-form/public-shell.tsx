@@ -19,34 +19,3 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-/** A form-shaped card for the non-fillable states (closed, needs sign-in, already responded, thank you). */
-export function StateCard({
-  title,
-  department,
-  children,
-}: {
-  title?: string;
-  department?: { name: string; color: string } | null;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-xl border bg-card shadow-xs">
-      <div className="h-2.5 bg-brand" aria-hidden />
-      <div className="p-5 sm:p-6">
-        {department && <DepartmentBadge department={department} />}
-        {title && <h1 className="text-2xl leading-tight font-bold break-words sm:text-3xl">{title}</h1>}
-        <div className={title ? "mt-4" : undefined}>{children}</div>
-      </div>
-    </div>
-  );
-}
-
-export function DepartmentBadge({ department }: { department: { name: string; color: string } }) {
-  return (
-    <p className="mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-      <span className="size-2 rounded-full" style={{ backgroundColor: department.color }} aria-hidden />
-      {department.name} · {brand.orgName}
-    </p>
-  );
-}

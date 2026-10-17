@@ -16,7 +16,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { AlertCircle, ArrowLeft, Check, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, Loader2, Plus, Share2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,7 +26,8 @@ import { QuestionCard } from "@/components/builder/question-card";
 import { useAutosave } from "@/components/builder/use-autosave";
 import { LIMITS, type DraftQuestion } from "@/lib/forms/schema";
 import type { Option } from "@/lib/forms/queries";
-import { deleteTemplate, saveTemplate } from "@/app/(app)/admin/actions";
+import { deleteTemplate, saveTemplate } from "@/app/(app)/templates/actions";
+import { ShareDialog } from "@/components/templates/share-dialog";
 
 type TemplateDraft = {
   title: string;
@@ -37,14 +38,30 @@ type TemplateDraft = {
 };
 
 /** Template editing reuses the builder's question cards, drag-and-drop and autosave. */
-export function TemplateEditor({ id, initial, categories }: { id: string; initial: TemplateDraft; categories: Option[] }) {
-  const t = useTranslations("admin.templates");
+export function TemplateEditor({
+  id,
+  initial,
+  categories,
+  official,
+  canShare,
+  backHref,
+}: {
+  id: string;
+  initial: TemplateDraft;
+  categories: Option[];
+  /** Official (secretariat) templates have a "Published" switch; department templates don't. */
+  official: boolean;
+  canShare: boolean;
+  backHref: string;
+}) {
+  const t = useTranslations("templates.editor");
   const tb = useTranslations("builder");
   const te = useTranslations("admin.errors");
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
   const [activeId, setActiveId] = useState<string | null>(initial.questions[0]?.id ?? null);
   const [busy, startTransition] = useTransition();
+  const [sharing, setSharing] = useState(false);
   const dndId = useId();
 
   const save = useCallback(
@@ -85,7 +102,7 @@ export function TemplateEditor({ id, initial, categories }: { id: string; initia
     <div className="mx-auto max-w-3xl space-y-3 pb-24">
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/admin/templates" aria-label={t("back")}>
+          <Link href={backHref} aria-label={t("back")}>
             <ArrowLeft aria-hidden />
           </Link>
         </Button>
@@ -96,6 +113,12 @@ export function TemplateEditor({ id, initial, categories }: { id: string; initia
           {status === "error" && <AlertCircle className="size-3.5 text-destructive" aria-hidden />}
           {status === "saved" ? tb("saved") : status === "saving" ? tb("saving") : status === "error" ? tb("saveError") : status === "offline" ? tb("offline") : tb("unsaved")}
         </span>
+        {canShare && (
+          <Button variant="outline" onClick={() => setSharing(true)}>
+            <Share2 aria-hidden />
+            {t("share")}
+          </Button>
+        )}
         <Button
           variant="ghost"
           className="text-destructive"
@@ -104,7 +127,7 @@ export function TemplateEditor({ id, initial, categories }: { id: string; initia
             startTransition(async () => {
               if (!window.confirm(t("deleteConfirm"))) return;
               const res = await deleteTemplate(id);
-              if (res.ok) router.push("/admin/templates");
+              if (res.ok) router.push(backHref);
               else toast.error(te(res.error));
             })
           }
@@ -151,14 +174,16 @@ export function TemplateEditor({ id, initial, categories }: { id: string; initia
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2 pb-2">
-            <Label htmlFor="template-published" className="text-sm font-normal">
-              {t("published")}
-            </Label>
-            <Switch id="template-published" checked={draft.is_published} onCheckedChange={(v) => patch({ is_published: v })} />
-          </div>
+          {official && (
+            <div className="flex items-center gap-2 pb-2">
+              <Label htmlFor="template-published" className="text-sm font-normal">
+                {t("published")}
+              </Label>
+              <Switch id="template-published" checked={draft.is_published} onCheckedChange={(v) => patch({ is_published: v })} />
+            </div>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground">{t("publishedHint")}</p>
+        <p className="text-xs text-muted-foreground">{official ? t("publishedHint") : t("visibilityHint")}</p>
       </section>
 
       <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -201,6 +226,7 @@ export function TemplateEditor({ id, initial, categories }: { id: string; initia
           {tb("addQuestion")}
         </Button>
       </div>
+      {canShare && <ShareDialog templateId={id} title={draft.title} open={sharing} onOpenChange={setSharing} />}
     </div>
   );
 }
