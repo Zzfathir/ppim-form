@@ -9,8 +9,9 @@ import { PeriodFilter } from "@/components/admin/period-filter";
 import { BarList } from "@/components/charts/bar-list";
 import { TimeSeriesChart } from "@/components/charts/time-series";
 import { StatusBadge } from "@/components/status-badge";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Overview" };
+export const generateMetadata = pageTitle("overview");
 
 function first(v: string | string[] | undefined) {
   return Array.isArray(v) ? v[0] : v;

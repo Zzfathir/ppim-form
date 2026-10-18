@@ -7,8 +7,9 @@ import { isPublicFormPath, safeReturnTo } from "@/lib/safe-redirect";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Sign in" };
+export const generateMetadata = pageTitle("signIn");
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;

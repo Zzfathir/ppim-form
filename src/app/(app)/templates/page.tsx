@@ -7,8 +7,9 @@ import { NewFormButton } from "@/components/forms/new-form-button";
 import { TemplateCard, type TemplateCardData } from "@/components/templates/template-card";
 import type { TemplateQuestion } from "@/lib/questions";
 import { createMyTemplate } from "./actions";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Templates" };
+export const generateMetadata = pageTitle("templates");
 
 export default async function TemplatesPage() {
   const profile = await requireStaff("/templates");

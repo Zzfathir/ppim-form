@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { getCurrentProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -223,7 +224,7 @@ export async function createTemplate(): Promise<void> {
   if (!ctx) throw new Error("forbidden");
   const { data, error } = await ctx.supabase
     .from("templates")
-    .insert({ title: "Untitled template", is_published: false, is_official: true, created_by: ctx.profile.id, questions: [] })
+    .insert({ title: (await getTranslations("templates"))("untitled"), is_published: false, is_official: true, created_by: ctx.profile.id, questions: [] })
     .select("id")
     .single();
   if (error || !data) throw new Error(errorCode(error));

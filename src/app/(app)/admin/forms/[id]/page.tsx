@@ -9,7 +9,13 @@ import { shareUrl } from "@/lib/forms/share";
 import { bannerUrl, type BannerStyle } from "@/lib/forms/banner";
 import { AdminFormDetail } from "@/components/admin/form-detail";
 
-export const metadata: Metadata = { title: "Form" };
+export async function generateMetadata({ params }: PageProps<"/admin/forms/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  if (!z.uuid().safeParse(id).success) return {};
+  const supabase = await createClient();
+  const { data } = await supabase.from("forms").select("title").eq("id", id).maybeSingle();
+  return { title: data?.title };
+}
 
 export default async function AdminFormPage({ params }: PageProps<"/admin/forms/[id]">) {
   await requireSuperadmin();

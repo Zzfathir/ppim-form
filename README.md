@@ -30,7 +30,7 @@ Cloud, then restart with `npm run db:stop && npm run db:start`.
 | `npm run dev` / `build` / `start` | Next.js |
 | `npm run lint` / `typecheck` | ESLint / route typegen + `tsc` |
 | `npm test` | Unit tests + database permission tests (needs local Supabase running and seeded) |
-| `npm run test:e2e` | Browser tests (Playwright): public form at 360 px and the builder. Starts or reuses the dev server on port 3001 (`E2E_PORT` to change). First run: `npx playwright install chromium` |
+| `npm run test:e2e` | Browser tests (Playwright): public form at 360 px, builder, responses, secretary pages, and an accessibility (axe, WCAG 2.1 AA) + no-sideways-scroll sweep of every page at 360 px and desktop. Starts or reuses the dev server on port 3001 (`E2E_PORT` to change). First run: `npx playwright install chromium` |
 | `npm run check:messages` | Checks that `messages/en.json` and `messages/id.json` have the same keys |
 | `npm run db:seed` | Base data only (departments, chapters, categories, templates); safe to re-run |
 | `npm run db:seed:dev` | Base data + sample admins, forms and responses (refuses non-local databases) |
@@ -67,4 +67,70 @@ See [`.env.example`](.env.example).
 5. Apply the schema: `npx supabase link --project-ref <ref>` then `npx supabase db push`.
 6. Seed: point `.env.local` at the cloud project and run `npm run db:seed` once (never `db:seed:dev`).
 
-Deployment notes (Vercel) will be completed in the polish phase.
+## Google Sheets live sync (optional)
+
+Lets a form owner connect their Google account and send every response to a spreadsheet in their own Drive.
+The button stays hidden until all three `GOOGLE_*` variables are set.
+
+1. Google Cloud → *APIs & Services → Library*: enable **Google Sheets API**.
+2. OAuth consent screen → *Data access*: add the scope `https://www.googleapis.com/auth/drive.file` (non-sensitive:
+   the app can only see files it created).
+3. Your OAuth client (the same one used for sign-in): add the redirect URI `<NEXT_PUBLIC_APP_URL>/api/google/callback`
+   (e.g. `http://localhost:3001/api/google/callback` and `https://<your-subdomain>/api/google/callback`).
+4. Fill `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` and `GOOGLE_TOKEN_KEY` (command in `.env.example`).
+5. Set the consent screen's *Publishing status* to **In production**. While it says *Testing*, Google expires the
+   connection after 7 days and only listed test users can connect.
+
+## Deployment (own hosting, subdomain)
+
+The app is a normal Node.js server (`next build` then `next start`). It is **not** a static site, so the host must
+run Node.js 20.9 or newer: a VPS, or shared hosting with a "Setup Node.js App" (cPanel/Passenger) feature. Plain
+PHP-only hosting can't run it.
+
+**1. Prepare the services** (once): follow *Cloud setup* above, using your real address, e.g.
+`https://form.<your-domain>`:
+- Google OAuth client → Authorized JavaScript origins: `https://form.<your-domain>`.
+- Supabase → Authentication → URL Configuration → Site URL `https://form.<your-domain>`, redirect URL
+  `https://form.<your-domain>/**`.
+- Point the subdomain's DNS (an `A` record to the server, or the host's subdomain tool) and turn on HTTPS
+  (Let's Encrypt / AutoSSL). Google sign-in requires HTTPS outside localhost.
+
+**2. Configure environment variables** on the server (a `.env.production.local` file next to `package.json`, or the
+host's environment panel). Same names as `.env.example`, with cloud values and
+`NEXT_PUBLIC_APP_URL=https://form.<your-domain>`. `NEXT_PUBLIC_*` values are baked in at build time: change
+them, then rebuild.
+
+**3. Build and run:**
+
+```bash
+npm ci
+npm run build
+npm start -- --port 3000     # or let the host pick: PORT=xxxx npm start
+```
+
+- **VPS:** keep it running with a process manager, e.g. `npx pm2 start npm --name ppim-form -- start` then
+  `npx pm2 save`; put nginx (or Caddy) in front as a reverse proxy to `127.0.0.1:3000`.
+- **cPanel "Setup Node.js App":** Node 20+, application root = this folder, startup file = `server.js` with:
+  ```js
+  const { createServer } = require("node:http");
+  const next = require("next");
+  const app = next({ dev: false });
+  const handle = app.getRequestHandler();
+  app.prepare().then(() => createServer((req, res) => handle(req, res)).listen(process.env.PORT || 3000));
+  ```
+  Run `npm ci && npm run build` from the app's terminal, then restart the app. Building needs ~1.5 GB of RAM; if the host kills it, build on your own
+  computer with the production env file and upload the folder including `.next`.
+
+**Reverse proxy:** rate limiting reads the visitor's IP from the first `X-Forwarded-For` entry, so the proxy in
+front of the app must set it (nginx: `proxy_set_header X-Forwarded-For $remote_addr;`). On shared hosting, ask the host or
+check that the header arrives. Without it, all visitors share one rate-limit bucket.
+
+**4. Database updates:** whenever a new migration is added, run `npx supabase db push` against the cloud project
+before (or right after) deploying the new code. `npm run db:seed` is safe to re-run; it only adds missing base data.
+
+**5. Check after deploying:** sign in with a `SUPERADMIN_EMAILS` account → `/admin` opens; create and publish a form
+→ open its link in a private window → submit → the response shows up in the Responses tab.
+
+**Costs:** Supabase Free is enough to start (500 MB database, 1 GB storage for banners). A free project pauses after
+a week without traffic; upgrade to Pro (US$25/month) once the app is in real use. Hosting and the domain are your
+existing ones.

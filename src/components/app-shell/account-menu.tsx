@@ -36,10 +36,10 @@ export function AccountMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={t("account")}
-        className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        className="relative rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        <Avatar className="size-9">
+        <span className="sr-only">{t("account")}</span>
+        <Avatar className="size-9" aria-hidden>
           {avatarUrl && <AvatarImage src={avatarUrl} alt="" referrerPolicy="no-referrer" />}
           <AvatarFallback>{initials || "?"}</AvatarFallback>
         </Avatar>

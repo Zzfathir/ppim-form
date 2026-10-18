@@ -343,7 +343,12 @@
       "description": "Description (optional)",
       "color": "Color",
       "sort": "Order",
-      "save": "Save"
+      "save": "Save",
+      "empty": {
+        "departments": "No departments yet. Add the first one to let members sign up.",
+        "chapters": "No chapters yet. Add one to let members pick their chapter.",
+        "categories": "No categories yet. Categories are optional labels for forms and templates."
+      }
     },
     "settings": {
       "title": "Settings",
@@ -707,5 +712,21 @@
     "colEmail": "Email",
     "colDeleted": "deleted question",
     "spreadsheetName": "{title} (Responses)"
+  },
+  "titles": {
+    "signIn": "Sign in",
+    "welcome": "Welcome",
+    "myForms": "My forms",
+    "templates": "Templates",
+    "editTemplate": "Edit template",
+    "overview": "Overview",
+    "allForms": "All forms",
+    "form": "Form",
+    "people": "People",
+    "departments": "Departments",
+    "chapters": "Chapters",
+    "categories": "Categories",
+    "manageTemplates": "Manage templates",
+    "settings": "Settings"
   }
 }

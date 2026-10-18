@@ -6,8 +6,9 @@ import { getCurrentProfile, needsOnboarding } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { OnboardingForm } from "./onboarding-form";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Welcome" };
+export const generateMetadata = pageTitle("welcome");
 
 export default async function OnboardingPage() {
   const profile = await getCurrentProfile();

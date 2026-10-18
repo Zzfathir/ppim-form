@@ -25,9 +25,9 @@ export default defineConfig({
   projects: [
     {
       name: "phone-360",
-      testMatch: /public-form\.spec\.ts/,
+      testMatch: /(public-form|polish)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 780 }, hasTouch: true },
     },
-    { name: "desktop", testMatch: /(builder|responses|secretary|revisions)\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", testMatch: /(builder|responses|secretary|revisions|polish)\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
   ],
 });

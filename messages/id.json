@@ -343,7 +343,12 @@
       "description": "Deskripsi (opsional)",
       "color": "Warna",
       "sort": "Urutan",
-      "save": "Simpan"
+      "save": "Simpan",
+      "empty": {
+        "departments": "Belum ada departemen. Tambahkan yang pertama agar anggota bisa mendaftar.",
+        "chapters": "Belum ada cabang. Tambahkan agar anggota bisa memilih cabangnya.",
+        "categories": "Belum ada kategori. Kategori adalah label opsional untuk formulir dan template."
+      }
     },
     "settings": {
       "title": "Pengaturan",
@@ -707,5 +712,21 @@
     "colEmail": "Email",
     "colDeleted": "pertanyaan dihapus",
     "spreadsheetName": "{title} (Jawaban)"
+  },
+  "titles": {
+    "signIn": "Masuk",
+    "welcome": "Selamat datang",
+    "myForms": "Formulir saya",
+    "templates": "Template",
+    "editTemplate": "Edit template",
+    "overview": "Ringkasan",
+    "allForms": "Semua formulir",
+    "form": "Formulir",
+    "people": "Pengguna",
+    "departments": "Departemen",
+    "chapters": "Cabang",
+    "categories": "Kategori",
+    "manageTemplates": "Kelola template",
+    "settings": "Pengaturan"
   }
 }

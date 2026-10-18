@@ -3,8 +3,9 @@ import { requireSuperadmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { getLookups } from "@/lib/forms/queries";
 import { PeopleManager } from "@/components/admin/people-manager";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "People" };
+export const generateMetadata = pageTitle("people");
 
 export default async function PeoplePage() {
   const me = await requireSuperadmin();

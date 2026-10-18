@@ -11,8 +11,9 @@ import { FormCard } from "@/components/forms/form-card";
 import { FormFilters } from "@/components/forms/form-filters";
 import { NewFormButton } from "@/components/forms/new-form-button";
 import { cn } from "@/lib/utils";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "My forms" };
+export const generateMetadata = pageTitle("myForms");
 
 const STATUSES: FormStatus[] = ["draft", "open", "closed", "archived"];
 

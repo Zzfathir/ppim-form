@@ -13,8 +13,9 @@ import { NewFormButton } from "@/components/forms/new-form-button";
 import { RegistryFilters } from "@/components/admin/registry-filters";
 import { StatusBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "All forms" };
+export const generateMetadata = pageTitle("allForms");
 
 export default async function RegistryPage({ searchParams }: PageProps<"/admin/forms">) {
   const profile = await requireSuperadmin();

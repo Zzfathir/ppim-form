@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/f/[slug]">): Prom
   const { slug } = await params;
   const form = await loadPublicForm(createAdminClient(), slug, null);
   return {
-    title: form.state === "not_found" ? undefined : form.title,
+    title: form.state === "not_found" ? (await getTranslations("publicForm"))("notFoundTitle") : form.title,
     robots: { index: false, follow: false },
   };
 }

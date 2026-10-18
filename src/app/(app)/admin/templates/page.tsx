@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { TemplatePublishToggle } from "@/components/admin/template-publish-toggle";
 import { createTemplate } from "../actions";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Manage templates" };
+export const generateMetadata = pageTitle("manageTemplates");
 
 /** Oversight of every template: official ones (publish toggle) and each department's own. */
 export default async function AdminTemplatesPage() {

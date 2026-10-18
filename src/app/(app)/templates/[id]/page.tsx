@@ -7,8 +7,9 @@ import { getLookups } from "@/lib/forms/queries";
 import { toDraftQuestion } from "@/lib/forms/schema";
 import type { TemplateQuestion } from "@/lib/questions";
 import { TemplateEditor } from "@/components/templates/template-editor";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Edit template" };
+export const generateMetadata = pageTitle("editTemplate");
 
 /** Template editor for its creator (or a superadmin). Everyone else is sent back to the gallery. */
 export default async function TemplateEditPage({ params }: PageProps<"/templates/[id]">) {

@@ -69,7 +69,10 @@ export function LookupManager({ table, rows }: { table: Table; rows: LookupRow[]
         </Button>
       </div>
 
-      <ul className="divide-y rounded-xl border bg-card shadow-xs">
+      {rows.length === 0 && (
+        <p className="rounded-xl border border-dashed bg-card px-4 py-6 text-center text-sm text-muted-foreground">{t(`empty.${table}`)}</p>
+      )}
+      <ul className={cn("divide-y rounded-xl border bg-card shadow-xs", rows.length === 0 && "hidden")}>
         {rows.map((row) => (
           <li key={row.id} className={cn("flex flex-wrap items-center gap-3 px-4 py-3", row.archived && "bg-muted/40")}>
             {hasColor && <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: row.color }} aria-hidden />}

@@ -321,7 +321,7 @@ export function FormEditor(props: FormEditorProps) {
           </Tooltip>
 
           {readOnly ? (
-            <Button onClick={duplicateToMine} disabled={busy}>
+            <Button onClick={duplicateToMine} disabled={busy} aria-label={t("duplicateToMine")}>
               {busy ? <Loader2 className="animate-spin" aria-hidden /> : <CopyPlus aria-hidden />}
               <span className="hidden sm:inline">{t("duplicateToMine")}</span>
             </Button>
@@ -356,6 +356,7 @@ export function FormEditor(props: FormEditorProps) {
                 </div>
               )}
               <Button
+                aria-label={t("share")}
                 onClick={() => {
                   setJustPublished(false);
                   setShareOpen(true);

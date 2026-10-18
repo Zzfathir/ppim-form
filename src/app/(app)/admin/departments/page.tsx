@@ -2,8 +2,9 @@ import { getTranslations } from "next-intl/server";
 import { requireSuperadmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LookupManager } from "@/components/admin/lookup-manager";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Departments" };
+export const generateMetadata = pageTitle("departments");
 
 export default async function DepartmentsPage() {
   await requireSuperadmin();

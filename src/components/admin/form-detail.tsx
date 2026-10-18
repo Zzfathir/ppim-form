@@ -180,7 +180,7 @@ export function AdminFormDetail({
             <h2 className="text-base font-semibold">{t("details")}</h2>
             <dl className="mt-4 grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] gap-x-4 gap-y-2.5 text-sm">
               <dt className="text-muted-foreground">{t("owner")}</dt>
-              <dd>
+              <dd className="break-words">
                 {owner ? (
                   <>
                     {owner.name} <span className="text-muted-foreground">({owner.email})</span>

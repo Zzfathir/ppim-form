@@ -2,8 +2,9 @@ import { getTranslations } from "next-intl/server";
 import { requireSuperadmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "@/components/admin/settings-form";
+import { pageTitle } from "@/lib/page-title";
 
-export const metadata = { title: "Settings" };
+export const generateMetadata = pageTitle("settings");
 
 export default async function AdminSettingsPage() {
   await requireSuperadmin();

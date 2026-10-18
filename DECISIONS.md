@@ -467,3 +467,26 @@ request wins** (the owner is the product owner); each change is noted here.
     set (see `.env.example`). The redirect URI registered in Google must be `<NEXT_PUBLIC_APP_URL>/api/google/callback`.
   - Tests use a fake Google: link + back-fill, append-only, new columns, concurrent syncs without duplicates,
     revoked access and recovery, RLS on link status, token encryption.
+
+## Phase 7 — Polish (2026-10-18)
+
+- **Page titles** (browser tab) now come from the message files (`titles.*`) via `pageTitle()` in
+  `src/lib/page-title.ts`; the admin form detail and public form use the form's own title. New official templates
+  start with the translated "Untitled template". No user-facing English is left hard-coded in pages.
+- **Loading/empty/error states:** added a skeleton for all `/admin` pages (`admin/loading.tsx`, placed *below*
+  the admin layout so the superadmin redirect happens before anything streams) and empty messages for
+  departments/chapters/categories. Every other list already had them; `(app)/error.tsx` and the root
+  `error.tsx`/`not-found.tsx` cover errors.
+- **Accessibility:** a Playwright + axe-core sweep (`tests/e2e/polish.spec.ts`, WCAG 2.1 A/AA incl. colour
+  contrast) runs on every page, plus onboarding, the form settings tab, the share dialog and the responses table,
+  at 360 px and desktop. Fixes it drove: the account menu button's name now matches its content; icon-only
+  "Share" / "Duplicate to mine" buttons on phones got names; the public "form not found" page has a title.
+  The builder was already keyboard-operable (dnd-kit keyboard sensor, labelled controls).
+- **Mobile:** the same sweep fails on any sideways scroll at 360 px. Only one page overflowed (long owner email
+  on the admin form detail); it now wraps.
+- **Deployment:** the owner hosts on their own server under a PPI Malaysia subdomain. README documents a plain
+  Node.js deployment (VPS with pm2 + nginx, or cPanel "Setup Node.js App"), HTTPS, the reverse proxy's
+  `X-Forwarded-For` (rate limiting depends on it), `supabase db push` for migrations, and Google Sheets setup.
+  Assumed: the host can run Node.js 20.9+; static-only/PHP hosting cannot run this app.
+- **Still assumed (owner to confirm):** semesters start 1 February and 1 September (`src/config/app.ts`);
+  chapters are placeholders (Chapter 1–5) until the real list arrives.
