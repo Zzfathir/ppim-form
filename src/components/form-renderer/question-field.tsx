@@ -12,19 +12,17 @@ import { cn } from "@/lib/utils";
 import { OTHER, type FieldValue, type RenderQuestion } from "./types";
 
 /**
- * One numbered question on the sheet. No card of its own: questions are
- * separated by the sheet's dividers; errors tint the block and the number.
+ * One question on the sheet. No card of its own: questions are separated by
+ * the sheet's dividers; errors tint the block.
  */
 export function QuestionField({
   question: q,
-  number,
   field,
   error,
   onChange,
   disabled,
 }: {
   question: RenderQuestion;
-  number: number;
   field: FieldValue;
   error?: AnswerError;
   onChange: (next: FieldValue) => void;
@@ -41,7 +39,7 @@ export function QuestionField({
   const choiceRow = "flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2 -mx-2 transition-colors hover:bg-muted/70";
 
   return (
-    <QuestionBlock id={`q-${q.id}`} number={number} error={Boolean(error)}>
+    <QuestionBlock id={`q-${q.id}`} error={Boolean(error)}>
       <fieldset>
         <legend className="sr-only">{q.title}</legend>
         <p id={titleId} className="text-base leading-snug font-semibold whitespace-pre-wrap">
@@ -199,36 +197,11 @@ export function QuestionField({
   );
 }
 
-/** Numbered row on the sheet ("01", "02", …). `number = 0` renders an unnumbered row. */
-export function QuestionBlock({
-  id,
-  number,
-  error,
-  children,
-}: {
-  id?: string;
-  number: number;
-  error?: boolean;
-  children: React.ReactNode;
-}) {
+/** One row on the sheet. */
+export function QuestionBlock({ id, error, children }: { id?: string; error?: boolean; children: React.ReactNode }) {
   return (
-    <li
-      id={id}
-      className={cn(
-        "grid scroll-mt-24 grid-cols-[2rem_minmax(0,1fr)] gap-x-2 px-5 py-6 transition-colors sm:grid-cols-[2.75rem_minmax(0,1fr)] sm:px-8",
-        error && "bg-destructive/[0.035]",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "pt-0.5 font-heading text-sm font-bold tabular-nums",
-          error ? "text-destructive" : number > 0 ? "text-[var(--form-accent,var(--brand-accent))]" : "text-muted-foreground/60",
-        )}
-      >
-        {number > 0 ? String(number).padStart(2, "0") : "—"}
-      </span>
-      <div className="min-w-0">{children}</div>
+    <li id={id} className={cn("min-w-0 scroll-mt-24 px-5 py-6 transition-colors sm:px-8", error && "bg-destructive/[0.035]")}>
+      {children}
     </li>
   );
 }

@@ -28,7 +28,7 @@ function toAnswer(q: RenderQuestion, field: FieldValue | undefined): unknown {
 }
 
 /**
- * The respondent view: a single sheet with numbered questions. Used for the
+ * The respondent view: a single sheet of questions. Used for the
  * builder preview (submit disabled) and the public /f/{slug} page.
  */
 export function FormRenderer({
@@ -68,7 +68,6 @@ export function FormRenderer({
     return out;
   }, [questions]);
   const answerable = useMemo(() => questions.filter((q) => q.type !== "section"), [questions]);
-  const numberOf = useMemo(() => new Map(answerable.map((q, i) => [q.id, i + 1])), [answerable]);
   const [page, setPage] = useState(0);
   const isLast = page >= pages.length - 1;
   const current = pages[Math.min(page, pages.length - 1)];
@@ -195,9 +194,9 @@ export function FormRenderer({
             )}
           </div>
         )}
-        <ol className="divide-y border-t">
+        <ul className="divide-y border-t">
           {showName && page === 0 && (
-            <QuestionBlock id="respondent-name-block" number={0} error={Boolean(errors[NAME_FIELD])}>
+            <QuestionBlock id="respondent-name-block" error={Boolean(errors[NAME_FIELD])}>
               <label htmlFor="respondent-name" className="flex items-center gap-1.5 text-base font-semibold">
                 <UserRound className="size-4 text-muted-foreground" aria-hidden />
                 {t("nameLabel")}
@@ -235,14 +234,13 @@ export function FormRenderer({
             <QuestionField
               key={q.id}
               question={q}
-              number={numberOf.get(q.id) ?? 0}
               field={fields[q.id] ?? {}}
               error={errors[q.id]}
               onChange={(next) => update(q.id, next)}
               disabled={submitting}
             />
           ))}
-        </ol>
+        </ul>
 
         {/* Honeypot: invisible to people, tempting to bots. Must stay empty. */}
         <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">

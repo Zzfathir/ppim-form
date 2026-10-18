@@ -108,7 +108,7 @@ test("banner upload with style choice, required name, and the single-sheet publi
   await expect(banner).toBeVisible();
   expect(await banner.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   await expect(respondent.getByRole("heading", { name: "Malam Budaya" })).toBeVisible();
-  await expect(respondent.getByText("01", { exact: true })).toBeVisible(); // numbered questions
+  await expect(respondent.getByText("01", { exact: true })).toHaveCount(0); // questions are not numbered
 
   // Empty submit: both the required name and the required question are flagged.
   await respondent.getByRole("button", { name: "Submit" }).click();
@@ -198,7 +198,6 @@ test("multi-page form: per-page validation, Back keeps answers, thank-you with '
 
   await expect(r.getByText("Page 2 of 2")).toBeVisible();
   await expect(r.getByRole("heading", { name: "Your trip" })).toBeVisible();
-  await expect(r.getByText("02", { exact: true })).toBeVisible(); // numbering continues across pages
   await r.getByRole("button", { name: "Back", exact: true }).click();
   await expect(r.getByRole("textbox", { name: "Full name" })).toHaveValue("Rina");
   await r.getByRole("button", { name: "Next", exact: true }).click();

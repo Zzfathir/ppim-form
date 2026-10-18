@@ -354,8 +354,8 @@ request wins** (the owner is the product owner); each change is noted here.
   footer follow. The organisation stays "PPI Malaysia" and the logo is unchanged. `spec/` and `CLAUDE.md` keep the
   old name as a historical record.
 - **Respondent form redesign — "single sheet"** (owner: "don't make it really look like Google Form"):
-  - One white sheet instead of a card per question. Questions are numbered `01, 02…` in brand red and separated by
-    hairlines. Submit has an arrow.
+  - One white sheet instead of a card per question. Questions are separated by hairlines (they were numbered
+    `01, 02…` until the owner asked to drop the numbers on 2026-10-18). Submit has an arrow.
   - Linear scales are round number buttons instead of a radio row. The real radio input covers each button
     invisibly, so clicks, keyboard and screen readers all work.
   - Errors tint the question row and turn its number and underline red.
