@@ -16,12 +16,13 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { AlertCircle, ArrowLeft, Check, Loader2, Plus, Share2, Trash2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, ImagePlus, Loader2, Plus, Share2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageCard } from "@/components/builder/image-card";
 import { QuestionCard } from "@/components/builder/question-card";
 import { useAutosave } from "@/components/builder/use-autosave";
 import { LIMITS, type DraftQuestion } from "@/lib/forms/schema";
@@ -189,25 +190,34 @@ export function TemplateEditor({
       <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={draft.questions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">
-            {draft.questions.map((q, i) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                index={i}
-                active={activeId === q.id}
-                typeLocked={false}
-                onActivate={() => setActiveId(q.id)}
-                onChange={(p) => setQuestions((qs) => qs.map((x) => (x.id === q.id ? { ...x, ...p } : x)))}
-                onReplace={(nq) => setQuestions((qs) => qs.map((x) => (x.id === nq.id ? nq : x)))}
-                onDuplicate={() => insertAfter(q.id, { ...structuredClone(q), id: crypto.randomUUID() })}
-                onDelete={() => setQuestions((qs) => qs.filter((x) => x.id !== q.id))}
-              />
-            ))}
+            {draft.questions.map((q, i) => {
+              const handlers = {
+                onActivate: () => setActiveId(q.id),
+                onChange: (p: Partial<DraftQuestion>) => setQuestions((qs) => qs.map((x) => (x.id === q.id ? { ...x, ...p } : x))),
+                onDuplicate: () => insertAfter(q.id, { ...structuredClone(q), id: crypto.randomUUID() }),
+                onDelete: () => setQuestions((qs) => qs.filter((x) => x.id !== q.id)),
+              };
+              // Images uploaded here go to the template's own folder.
+              return q.type === "image" ? (
+                <ImageCard key={q.id} question={q} active={activeId === q.id} imageFolder={id} {...handlers} />
+              ) : (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  index={i}
+                  active={activeId === q.id}
+                  typeLocked={false}
+                  imageFolder={id}
+                  onReplace={(nq) => setQuestions((qs) => qs.map((x) => (x.id === nq.id ? nq : x)))}
+                  {...handlers}
+                />
+              );
+            })}
           </div>
         </SortableContext>
       </DndContext>
 
-      <div className="flex justify-center pt-2">
+      <div className="flex flex-wrap justify-center gap-2 pt-2">
         <Button
           variant="outline"
           onClick={() =>
@@ -224,6 +234,23 @@ export function TemplateEditor({
         >
           <Plus aria-hidden />
           {tb("addQuestion")}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            insertAfter(activeId, {
+              id: crypto.randomUUID(),
+              type: "image",
+              title: "",
+              description: null,
+              required: false,
+              options: null,
+              settings: {},
+            })
+          }
+        >
+          <ImagePlus aria-hidden />
+          {tb("addImage")}
         </Button>
       </div>
       {canShare && <ShareDialog templateId={id} title={draft.title} open={sharing} onOpenChange={setSharing} />}

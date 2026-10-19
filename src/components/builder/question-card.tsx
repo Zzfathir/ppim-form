@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertCircle, Calendar, Circle, Copy, GripHorizontal, Lock, Square, Trash2 } from "lucide-react";
+import { AlertCircle, Calendar, Circle, Copy, GripHorizontal, ImagePlus, Lock, Square, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,9 +11,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { convertQuestion, LIMITS, SCALE_MAX_VALUES, SCALE_MIN_VALUES, type DraftQuestion } from "@/lib/forms/schema";
+import { imageUrl } from "@/lib/forms/banner";
 import { DEFAULT_SCALE, type QuestionType } from "@/lib/questions";
 import { cn } from "@/lib/utils";
 import { OptionsEditor } from "./options-editor";
+import { ImageEditor, useImagePicker } from "./question-image";
 import { QUESTION_ICONS, QUESTION_TYPE_GROUPS, type QuestionIssue } from "./question-meta";
 
 type Props = {
@@ -21,6 +23,8 @@ type Props = {
   index: number;
   active: boolean;
   typeLocked: boolean;
+  /** Storage folder for uploaded images: the form's (or template's) id. */
+  imageFolder: string;
   issue?: QuestionIssue;
   onActivate: () => void;
   onChange: (patch: Partial<DraftQuestion>) => void;
@@ -30,11 +34,12 @@ type Props = {
 };
 
 export function QuestionCard(props: Props) {
-  const { question: q, index, active, issue, onActivate } = props;
+  const { question: q, index, active, issue, onActivate, onChange, imageFolder } = props;
   const t = useTranslations("builder");
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: q.id,
   });
+  const picker = useImagePicker(imageFolder, (image_path) => onChange({ settings: { ...q.settings, image_path } }));
 
   return (
     <section
@@ -63,7 +68,9 @@ export function QuestionCard(props: Props) {
           <GripHorizontal className="size-5" aria-hidden />
         </button>
       </div>
-      <div className="px-4 pb-4 sm:px-6">{active ? <ActiveBody {...props} /> : <InactiveBody {...props} />}</div>
+      {/* The picker lives here so an upload finishes even if the card is deactivated meanwhile. */}
+      {picker.input}
+      <div className="px-4 pb-4 sm:px-6">{active ? <ActiveBody {...props} picker={picker} /> : <InactiveBody {...props} />}</div>
       {issue && (
         <p className="flex items-center gap-1.5 border-t px-4 py-2 text-sm text-destructive sm:px-6">
           <AlertCircle className="size-4 shrink-0" aria-hidden />
@@ -85,6 +92,10 @@ function InactiveBody({ question: q }: Props) {
         {q.required && <span className="ml-1 text-destructive">*</span>}
       </p>
       {q.description && <p className="mt-1 text-sm whitespace-pre-wrap text-muted-foreground">{q.description}</p>}
+      {q.settings.image_path && (
+        // eslint-disable-next-line @next/next/no-img-element -- remote Storage image, sized by CSS
+        <img src={imageUrl(q.settings.image_path)!} alt={q.settings.image_alt ?? ""} className="mt-3 max-h-40 max-w-full rounded-md border object-contain" />
+      )}
       <div className="mt-3 text-sm text-muted-foreground">
         {q.type === "short_text" && <p className="w-1/2 border-b border-dotted pb-1">{t("shortAnswerText")}</p>}
         {q.type === "paragraph" && <p className="w-3/4 border-b border-dotted pb-1">{t("longAnswerText")}</p>}
@@ -121,10 +132,21 @@ function InactiveBody({ question: q }: Props) {
   );
 }
 
-function ActiveBody({ question: q, index, typeLocked, onChange, onReplace, onDuplicate, onDelete }: Props) {
+function ActiveBody({
+  question: q,
+  index,
+  typeLocked,
+  picker,
+  onChange,
+  onReplace,
+  onDuplicate,
+  onDelete,
+}: Props & { picker: ReturnType<typeof useImagePicker> }) {
   const t = useTranslations("builder");
   const tt = useTranslations("questionTypes");
   const hasDescription = q.description !== null;
+  const setImage = (patch: Pick<DraftQuestion["settings"], "image_path" | "image_alt">) =>
+    onChange({ settings: { ...q.settings, ...patch } });
 
   const typeSelect = (
     <Select
@@ -194,6 +216,8 @@ function ActiveBody({ question: q, index, typeLocked, onChange, onReplace, onDup
         />
       )}
 
+      <ImageEditor settings={q.settings} uploading={picker.uploading} onReplace={picker.open} onChange={setImage} />
+
       {(q.type === "single_choice" || q.type === "multiple_choice" || q.type === "dropdown") && (
         <OptionsEditor question={q} onChange={onChange} />
       )}
@@ -218,6 +242,11 @@ function ActiveBody({ question: q, index, typeLocked, onChange, onReplace, onDup
         >
           {hasDescription ? t("removeDescription") : t("addDescription")}
         </button>
+        {!q.settings.image_path && (
+          <IconAction label={t("image.addToQuestion")} onClick={picker.open} disabled={picker.uploading}>
+            <ImagePlus className={cn("size-5", picker.uploading && "animate-pulse")} aria-hidden />
+          </IconAction>
+        )}
         <IconAction label={t("duplicateQuestion")} onClick={onDuplicate}>
           <Copy className="size-5" aria-hidden />
         </IconAction>
@@ -286,15 +315,26 @@ function ScaleEditor({ q, onChange }: { q: DraftQuestion; onChange: (patch: Part
   );
 }
 
-function IconAction({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+export function IconAction({
+  label,
+  onClick,
+  disabled,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
           onClick={onClick}
+          disabled={disabled}
           aria-label={label}
-          className="rounded-full p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+          className="rounded-full p-2.5 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60"
         >
           {children}
         </button>

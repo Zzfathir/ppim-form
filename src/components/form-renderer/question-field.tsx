@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEFAULT_SCALE } from "@/lib/questions";
 import type { AnswerError } from "@/lib/forms/answers";
+import { imageUrl } from "@/lib/forms/banner";
 import { cn } from "@/lib/utils";
 import { OTHER, type FieldValue, type RenderQuestion } from "./types";
 
@@ -55,6 +56,7 @@ export function QuestionField({
             {q.description}
           </p>
         )}
+        {q.settings.image_path && <SheetImage path={q.settings.image_path} alt={q.settings.image_alt} className="mt-4" />}
 
         <div className="mt-4">
           {q.type === "short_text" && (
@@ -194,6 +196,33 @@ export function QuestionField({
         {error && <FieldError id={errId} message={t(`errors.${error}`)} />}
       </fieldset>
     </QuestionBlock>
+  );
+}
+
+/** An image block: a picture with an optional title, nothing to answer. */
+export function ImageItem({ question: q }: { question: RenderQuestion }) {
+  if (!q.settings.image_path) return null;
+  return (
+    <QuestionBlock id={`q-${q.id}`}>
+      <figure>
+        {q.title && <figcaption className="mb-4 text-base leading-snug font-semibold whitespace-pre-wrap">{q.title}</figcaption>}
+        <SheetImage path={q.settings.image_path} alt={q.settings.image_alt} />
+      </figure>
+    </QuestionBlock>
+  );
+}
+
+/** Pictures keep their shape: full sheet width at most, never taller than most phone screens. */
+function SheetImage({ path, alt, className }: { path: string; alt?: string; className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- remote Storage image, sized by CSS
+    <img
+      src={imageUrl(path)!}
+      alt={alt ?? ""}
+      loading="lazy"
+      decoding="async"
+      className={cn("block h-auto max-h-[70vh] w-auto max-w-full rounded-lg object-contain", className)}
+    />
   );
 }
 

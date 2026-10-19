@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
-import { DEFAULT_SCALE } from "@/lib/questions";
+import { DEFAULT_SCALE, isAnswerable } from "@/lib/questions";
 import type { DraftQuestion } from "@/lib/forms/schema";
 import type {
   ChoiceStats,
@@ -32,7 +32,7 @@ export function SummaryView({
   return (
     <div className="space-y-3">
       {questions
-        .filter((q) => q.type !== "section")
+        .filter(isAnswerable)
         .map((q, i) => (
           <QuestionSummary key={q.id} index={i} question={q} stats={stats.get(q.id)} onShowTable={onShowTable} />
         ))}

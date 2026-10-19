@@ -559,6 +559,9 @@ isOneToOne: false
 "soft_delete_form":
 { Args: { "p_form_id": string }; Returns: undefined
                            },
+"template_image_paths":
+{ Args: { "p_questions": Json }; Returns: string[]
+                           },
 "template_shared_with_me":
 { Args: { "p_template_id": string }; Returns: boolean
                            },
@@ -567,7 +570,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "form_status": "draft"|"open"|"closed"|"archived","question_type": "short_text"|"paragraph"|"single_choice"|"multiple_choice"|"dropdown"|"scale"|"date"|"section","user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
+            "form_status": "draft"|"open"|"closed"|"archived","question_type": "short_text"|"paragraph"|"single_choice"|"multiple_choice"|"dropdown"|"scale"|"date"|"section"|"image","user_role": "respondent"|"admin"|"superadmin","user_status": "pending"|"active"|"suspended"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -687,7 +690,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "form_status": ["draft", "open", "closed", "archived"],"question_type": ["short_text", "paragraph", "single_choice", "multiple_choice", "dropdown", "scale", "date", "section"],"user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
+            "form_status": ["draft", "open", "closed", "archived"],"question_type": ["short_text", "paragraph", "single_choice", "multiple_choice", "dropdown", "scale", "date", "section", "image"],"user_role": ["respondent", "admin", "superadmin"],"user_status": ["pending", "active", "suspended"]
           }
         }
 } as const

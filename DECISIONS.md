@@ -490,3 +490,29 @@ request wins** (the owner is the product owner); each change is noted here.
   Assumed: the host can run Node.js 20.9+; static-only/PHP hosting cannot run this app.
 - **Still assumed (owner to confirm):** semesters start 1 February and 1 September (`src/config/app.ts`);
   chapters are placeholders (Chapter 1–5) until the real list arrives.
+
+## Owner revision round 3 (2026-10-19)
+
+- **Images in forms** (owner request; not in the PRD, recorded here like the banner). This is *not* "file upload":
+  only form creators add pictures; respondents still can't upload anything.
+  - **Image on any question:** "Add image to question" (picture icon on the active question card) puts one picture
+    between the question's title/description and its answer field. It works with every answer type and survives
+    changing the type.
+  - **Image block:** "Add image" adds a new item type `image` (enum value in its own migration, like `section`):
+    an optional title shown above one picture, never answered. Like sections, image blocks are skipped by answer
+    validation, the "no questions" check, summaries, the responses table, exports, Google Sheets columns and
+    builder question numbers (`isAnswerable()` / `LAYOUT_TYPES` in `src/lib/questions.ts`). Publishing is blocked
+    while an image block has no picture (`image_missing`).
+  - **Storage:** both are kept in `questions.settings` (`image_path`, `image_alt`), so templates, "Save as template"
+    and duplicates carry them with no new columns. Files go in the existing public `form-banners` bucket, same
+    resizing as banners (≤1600 px, WebP/JPEG, ≤5 MB), under the form's folder, or the template's folder when added
+    in the template editor (new storage policy: the template's editors only).
+  - **Server checks:** the database rejects malformed paths (check constraint). Autosave (`save_form`) accepts a new
+    image only from the form's own folder, or a path the form already uses (from a template, a duplicate, or a
+    duplicated question); otherwise `invalid_image`. Template edits follow the same rule for the template's folder
+    (trigger); new templates (copies, "Save as template") keep their source's paths.
+  - **Accessibility:** each picture has an optional "image description for screen readers" (alt text, ≤300
+    characters). Without one the picture is treated as decorative (`alt=""`).
+  - **Layout:** pictures keep their shape, never wider than the sheet and never taller than 70% of the screen,
+    lazy-loaded. Builder cards show a smaller preview.
+  - As with banners, replaced or removed pictures are not deleted from storage.

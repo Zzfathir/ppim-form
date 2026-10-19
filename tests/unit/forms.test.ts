@@ -155,3 +155,49 @@ describe("localProblems", () => {
 function emptyQ(): DraftQuestion {
   return { id: crypto.randomUUID(), type: "short_text", title: "", description: null, required: false, options: null, settings: {} };
 }
+
+describe("images", () => {
+  const path = `${crypto.randomUUID()}/${crypto.randomUUID()}.webp`;
+  const form = {
+    title: "T",
+    description: null,
+    department_id: crypto.randomUUID(),
+    category_id: crypto.randomUUID(),
+    chapter_id: null,
+    requires_login: false,
+    limit_one_response: true,
+    collect_name: false,
+    name_required: false,
+    confirmation_message: null,
+    banner_path: null,
+    banner_style: "edge" as const,
+  };
+
+  it("accepts an image on any question and rejects malformed paths", () => {
+    const question = { ...emptyQ(), title: "Which poster?" };
+    const ok = { ...question, settings: { image_path: path, image_alt: "Two posters" } };
+    expect(saveFormSchema.safeParse({ form, questions: [ok] }).success).toBe(true);
+    for (const bad of ["../x.webp", "not-a-folder/x.webp", `${path}/../y.webp`, "https://evil.example/x.png"])
+      expect(saveFormSchema.safeParse({ form, questions: [{ ...question, settings: { image_path: bad } }] }).success).toBe(false);
+    expect(saveFormSchema.safeParse({ form, questions: [{ ...question, settings: { image_alt: "x".repeat(301) } }] }).success).toBe(false);
+  });
+
+  it("keeps the question's image when its type changes", () => {
+    const withImage: DraftQuestion = { ...emptyQ(), settings: { image_path: path, image_alt: "Poster" } };
+    expect(convertQuestion(withImage, "single_choice", (n) => `Option ${n}`).settings).toEqual({ image_path: path, image_alt: "Poster" });
+    expect(convertQuestion(withImage, "scale", (n) => `Option ${n}`).settings).toEqual({ min: 1, max: 5, image_path: path, image_alt: "Poster" });
+  });
+
+  it("image blocks are never answered, and need a picture before publishing", () => {
+    const block = q({ type: "image", required: true });
+    expect(validateAnswers([block], { [block.id]: "anything" })).toEqual({ ok: true, errors: {}, clean: {} });
+
+    const empty: DraftQuestion = { ...emptyQ(), type: "image" };
+    const filled: DraftQuestion = { ...emptyQ(), type: "image", settings: { image_path: path } };
+    const real: DraftQuestion = { ...emptyQ(), title: "Name" };
+    expect(localProblems(form, [empty, real])).toEqual({ codes: ["image_missing"], issues: { [empty.id]: "image_missing" } });
+    expect(localProblems(form, [filled, real]).codes).toEqual([]);
+    // Images alone don't count as questions.
+    expect(localProblems(form, [filled]).codes).toEqual(["no_questions"]);
+  });
+});

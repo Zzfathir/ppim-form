@@ -24,6 +24,7 @@ export type PublishProblem =
   | "no_questions"
   | "question_untitled"
   | "choice_needs_options"
+  | "image_missing"
   | "publish_requires_active_account";
 
 export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string; problems?: PublishProblem[] };

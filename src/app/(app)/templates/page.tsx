@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { NewFormButton } from "@/components/forms/new-form-button";
 import { TemplateCard, type TemplateCardData } from "@/components/templates/template-card";
-import type { TemplateQuestion } from "@/lib/questions";
+import { isAnswerable, type TemplateQuestion } from "@/lib/questions";
 import { createMyTemplate } from "./actions";
 import { pageTitle } from "@/lib/page-title";
 
@@ -42,7 +42,7 @@ export default async function TemplatesPage() {
     category: r.categories?.name ?? null,
     department: r.departments ? { name: r.departments.name, color: r.departments.color } : null,
     questions: Array.isArray(r.questions)
-      ? (r.questions as TemplateQuestion[]).filter((q) => q.type !== "section").map((q) => q.title)
+      ? (r.questions as TemplateQuestion[]).filter(isAnswerable).map((q) => q.title)
       : [],
     creatorName: r.created_by ? (names.get(r.created_by) ?? null) : null,
     shareCount: shareCount.get(r.id) ?? 0,

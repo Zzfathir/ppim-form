@@ -83,7 +83,9 @@ test("banner upload with style choice, required name, and the single-sheet publi
   await page.goto(`/forms/${form.id}`);
 
   // Banner: upload, resized in the browser, stored, previewed.
-  await page.locator('input[type="file"]').setInputFiles({ name: "banner.png", mimeType: "image/png", buffer: png() });
+  const chooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: /^Add banner image/ }).click();
+  await (await chooser).setFiles({ name: "banner.png", mimeType: "image/png", buffer: png() });
   await expect(page.getByRole("img", { name: "Banner preview" })).toBeVisible();
   await page.getByRole("radio", { name: "Title on banner" }).click();
 
@@ -254,5 +256,64 @@ test("moving to the last page doesn't submit or flag the new page", async ({ bro
   await expect(r.getByText("Page 2 of 2")).toBeVisible();
   await expect(r.getByText("This is a required question")).toHaveCount(0);
   expect((await serviceClient().from("responses").select("id").eq("form_id", form.id)).data).toEqual([]);
+  await r.close();
+});
+
+test("images: a picture on a question and an image block, shown to respondents", async ({ page, baseURL, browser }) => {
+  await admin(page, baseURL!, "rev-images", d1, "Image Owner");
+  const form = await createForm({
+    owner: users.at(-1)!,
+    department: d1,
+    category,
+    status: "draft",
+    title: "Poster vote",
+    questions: [{ type: "single_choice", title: "Which poster do you prefer?", required: true, options: ["Poster A", "Poster B"] }],
+  });
+  await page.goto(`/forms/${form.id}`);
+
+  // Image on the (active) question, with a description for screen readers.
+  const chooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Add image to question" }).click();
+  await (await chooser).setFiles({ name: "posters.png", mimeType: "image/png", buffer: png(600, 300) });
+  await page.getByRole("textbox", { name: "Image description for screen readers" }).fill("Two posters side by side");
+
+  // An image block below it.
+  await page.getByRole("button", { name: "Add image", exact: true }).click();
+  const block = page.getByRole("region", { name: "Image", exact: true });
+  await block.getByRole("textbox", { name: "Image title (optional)" }).fill("Venue map");
+  const blockChooser = page.waitForEvent("filechooser");
+  await block.getByRole("button", { name: /^Add image/ }).click();
+  await (await blockChooser).setFiles({ name: "map.png", mimeType: "image/png", buffer: png(400, 400) });
+  await expect(block.getByRole("button", { name: "Change" })).toBeVisible();
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 10_000 });
+
+  const { data: qs } = await serviceClient().from("questions").select("type, title, settings").eq("form_id", form.id).order("position");
+  const imagePath = new RegExp(`^${form.id}/[0-9a-f-]{36}\.(webp|jpg)$`);
+  expect(qs).toHaveLength(2);
+  expect(qs![0]).toMatchObject({ type: "single_choice", settings: { image_alt: "Two posters side by side" } });
+  expect(qs![0].settings).toHaveProperty("image_path", expect.stringMatching(imagePath));
+  expect(qs![1]).toMatchObject({ type: "image", title: "Venue map" });
+  expect(qs![1].settings).toHaveProperty("image_path", expect.stringMatching(imagePath));
+
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("dialog", { name: "Your form is live" })).toBeVisible();
+
+  // Respondent at phone width: both pictures load and fit the sheet.
+  const { data } = await serviceClient().from("forms").select("share_slug").eq("id", form.id).single();
+  const r = await browser.newPage({ viewport: { width: 360, height: 780 } });
+  await r.goto(`${baseURL}/f/${data!.share_slug}`);
+  const posters = r.getByRole("img", { name: "Two posters side by side" });
+  await expect(posters).toBeVisible();
+  expect(await posters.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  expect(await r.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  const map = r.locator("figure").filter({ hasText: "Venue map" }).locator("img");
+  await map.scrollIntoViewIfNeeded();
+  await expect(map).toBeVisible();
+
+  await r.getByRole("radio", { name: "Poster B" }).click();
+  await r.getByRole("button", { name: "Submit" }).click();
+  await expect(r.getByRole("heading", { name: "Thank you!" })).toBeVisible();
+  const { data: rows } = await serviceClient().from("responses").select("answers").eq("form_id", form.id);
+  expect(rows).toEqual([{ answers: { [form.questionIds[0]]: "Poster B" } }]);
   await r.close();
 });

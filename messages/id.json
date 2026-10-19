@@ -522,7 +522,8 @@
       "category_required": "Pilih kategori.",
       "no_questions": "Tambahkan minimal satu pertanyaan.",
       "question_untitled": "Setiap pertanyaan harus punya judul.",
-      "choice_needs_options": "Pertanyaan pilihan butuh minimal 2 opsi."
+      "choice_needs_options": "Pertanyaan pilihan butuh minimal 2 opsi.",
+      "image_missing": "Setiap blok gambar perlu gambar."
     },
     "publishPending": "Anda bisa menerbitkan setelah sekretaris menyetujui akun Anda.",
     "shareTitle": "Formulir Anda sudah aktif",
@@ -584,7 +585,25 @@
     "sectionDescription": "Deskripsi (opsional)",
     "dragSection": "Seret untuk memindahkan bagian yang memulai halaman {page}",
     "deleteSection": "Hapus pemisah sebelum halaman {page}",
-    "removeSection": "Hapus pemisah halaman"
+    "removeSection": "Hapus pemisah halaman",
+    "addImage": "Tambah gambar",
+    "image": {
+      "add": "Tambah gambar",
+      "addToQuestion": "Tambah gambar ke pertanyaan",
+      "hint": "JPG, PNG, atau WebP",
+      "uploading": "Mengunggah…",
+      "change": "Ganti",
+      "remove": "Hapus",
+      "alt": "Deskripsi gambar untuk pembaca layar",
+      "altPlaceholder": "Jelaskan gambar (opsional, untuk pembaca layar)",
+      "altHint": "Dibacakan untuk orang yang tidak bisa melihat gambar. Jelaskan isi gambarnya.",
+      "block": "Gambar",
+      "titlePlaceholder": "Judul gambar (opsional)",
+      "drag": "Seret untuk memindahkan gambar",
+      "duplicate": "Duplikat gambar",
+      "delete": "Hapus gambar",
+      "missing": "Tambahkan gambar atau hapus blok gambar ini."
+    }
   },
   "respond": {
     "requiredNote": "Menandakan pertanyaan wajib",

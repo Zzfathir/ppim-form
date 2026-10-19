@@ -7,8 +7,9 @@ import { brand } from "@/config/brand";
 import { Button } from "@/components/ui/button";
 import { LineInput } from "@/components/ui/line-field";
 import { ANSWER_LIMITS, validateAnswers, type AnswerError, type AnswerValue } from "@/lib/forms/answers";
+import { isAnswerable } from "@/lib/questions";
 import { FormSheet } from "./form-sheet";
-import { FieldError, QuestionBlock, QuestionField } from "./question-field";
+import { FieldError, ImageItem, QuestionBlock, QuestionField } from "./question-field";
 import { NAME_FIELD, type FieldValue, type RenderForm, type RenderQuestion } from "./types";
 
 export type SubmitPayload = { answers: Record<string, AnswerValue>; name: string | null; website: string };
@@ -67,7 +68,7 @@ export function FormRenderer({
     out.push(current);
     return out;
   }, [questions]);
-  const answerable = useMemo(() => questions.filter((q) => q.type !== "section"), [questions]);
+  const answerable = useMemo(() => questions.filter(isAnswerable), [questions]);
   const [page, setPage] = useState(0);
   const isLast = page >= pages.length - 1;
   const current = pages[Math.min(page, pages.length - 1)];
@@ -230,16 +231,20 @@ export function FormRenderer({
             </QuestionBlock>
           )}
 
-          {current.items.map((q) => (
-            <QuestionField
-              key={q.id}
-              question={q}
-              field={fields[q.id] ?? {}}
-              error={errors[q.id]}
-              onChange={(next) => update(q.id, next)}
-              disabled={submitting}
-            />
-          ))}
+          {current.items.map((q) =>
+            q.type === "image" ? (
+              <ImageItem key={q.id} question={q} />
+            ) : (
+              <QuestionField
+                key={q.id}
+                question={q}
+                field={fields[q.id] ?? {}}
+                error={errors[q.id]}
+                onChange={(next) => update(q.id, next)}
+                disabled={submitting}
+              />
+            ),
+          )}
         </ul>
 
         {/* Honeypot: invisible to people, tempting to bots. Must stay empty. */}

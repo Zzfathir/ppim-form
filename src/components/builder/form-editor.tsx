@@ -16,7 +16,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { AlertCircle, ArrowLeft, BetweenHorizontalStart, Check, CloudOff, CopyPlus, Eye, LayoutTemplate, Loader2, Plus, Send, Share2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, BetweenHorizontalStart, Check, CloudOff, CopyPlus, Eye, ImagePlus, LayoutTemplate, Loader2, Plus, Send, Share2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -35,10 +35,12 @@ import { saveFormAsMyTemplate } from "@/app/(app)/templates/actions";
 import type { Lookups, FormStatus, Option } from "@/lib/forms/queries";
 import { LIMITS, type DraftForm, type DraftQuestion, type SaveFormPayload } from "@/lib/forms/schema";
 import { bannerUrl } from "@/lib/forms/banner";
+import { isAnswerable } from "@/lib/questions";
 import { cn } from "@/lib/utils";
 import { BannerPicker } from "./banner-picker";
 import { PreviewDialog } from "./preview-dialog";
 import { QuestionCard } from "./question-card";
+import { ImageCard } from "./image-card";
 import { SectionCard } from "./section-card";
 import { localProblems } from "./question-meta";
 import { SettingRow, SettingsPanel } from "./settings-panel";
@@ -140,6 +142,19 @@ export function FormEditor(props: FormEditorProps) {
     });
   }
 
+  function addImage() {
+    if (questions.length >= LIMITS.questions) return;
+    insertAfterActive({
+      id: crypto.randomUUID(),
+      type: "image",
+      title: "",
+      description: null,
+      required: false,
+      options: null,
+      settings: {},
+    });
+  }
+
   // Page numbers for section cards: a page starts at each section (items before the first one form page 1).
   const pageInfo = useMemo(() => {
     const pageOf = new Map<string, number>();
@@ -150,7 +165,7 @@ export function FormEditor(props: FormEditorProps) {
       if (q.type === "section") {
         page += 1;
         pageOf.set(q.id, page);
-      } else numberOf.set(q.id, n++);
+      } else if (isAnswerable(q)) numberOf.set(q.id, n++);
     }
     return { pageOf, numberOf, pages: Math.max(1, page) };
   }, [questions]);
@@ -253,7 +268,7 @@ export function FormEditor(props: FormEditorProps) {
     nameRequired: form.name_required,
     requiresLogin: form.requires_login,
   };
-  const renderQuestions = questions.map((q) => ({ ...q, title: q.title || t("questionPlaceholder") }));
+  const renderQuestions = questions.map((q) => (isAnswerable(q) ? { ...q, title: q.title || t("questionPlaceholder") } : q));
   const isLive = status === "open" || status === "closed";
 
   const acceptingToggle = isLive && !readOnly && (
@@ -447,19 +462,31 @@ export function FormEditor(props: FormEditorProps) {
                               onChange={(patch) => patchQuestion(q.id, patch)}
                               onDelete={() => deleteQuestion(q.id)}
                             />
+                          ) : q.type === "image" ? (
+                            <ImageCard
+                              question={q}
+                              active={activeId === q.id}
+                              imageFolder={formId}
+                              issue={showProblems ? local.issues[q.id] : undefined}
+                              onActivate={() => setActiveId(q.id)}
+                              onChange={(patch) => patchQuestion(q.id, patch)}
+                              onDuplicate={() => duplicateQuestion(q)}
+                              onDelete={() => deleteQuestion(q.id)}
+                            />
                           ) : (
-                          <QuestionCard
-                            question={q}
-                            index={pageInfo.numberOf.get(q.id) ?? i}
-                            active={activeId === q.id}
-                            typeLocked={answered.has(q.id)}
-                            issue={showProblems ? local.issues[q.id] : undefined}
-                            onActivate={() => setActiveId(q.id)}
-                            onChange={(patch) => patchQuestion(q.id, patch)}
-                            onReplace={replaceQuestion}
-                            onDuplicate={() => duplicateQuestion(q)}
-                            onDelete={() => deleteQuestion(q.id)}
-                          />
+                            <QuestionCard
+                              question={q}
+                              index={pageInfo.numberOf.get(q.id) ?? i}
+                              active={activeId === q.id}
+                              typeLocked={answered.has(q.id)}
+                              imageFolder={formId}
+                              issue={showProblems ? local.issues[q.id] : undefined}
+                              onActivate={() => setActiveId(q.id)}
+                              onChange={(patch) => patchQuestion(q.id, patch)}
+                              onReplace={replaceQuestion}
+                              onDuplicate={() => duplicateQuestion(q)}
+                              onDelete={() => deleteQuestion(q.id)}
+                            />
                           )}
                         </div>
                       ))}
@@ -473,6 +500,10 @@ export function FormEditor(props: FormEditorProps) {
                   <Button variant="outline" onClick={addQuestion}>
                     <Plus aria-hidden />
                     {t("addQuestion")}
+                  </Button>
+                  <Button variant="outline" onClick={addImage}>
+                    <ImagePlus aria-hidden />
+                    {t("addImage")}
                   </Button>
                   <Button variant="outline" onClick={addSection}>
                     <BetweenHorizontalStart aria-hidden />

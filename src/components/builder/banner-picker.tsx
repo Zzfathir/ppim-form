@@ -5,37 +5,10 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ImagePlus, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
-import {
-  BANNER_BUCKET,
-  BANNER_MAX_UPLOAD_BYTES,
-  BANNER_MAX_WIDTH,
-  BANNER_STYLES,
-  bannerUrl,
-  type BannerStyle,
-} from "@/lib/forms/banner";
+import { BANNER_STYLES, bannerUrl, type BannerStyle } from "@/lib/forms/banner";
 import { cn } from "@/lib/utils";
 import { FormSheet } from "@/components/form-renderer/form-sheet";
-
-const ACCEPT = ["image/jpeg", "image/png", "image/webp"];
-const RAW_LIMIT = 20 * 1024 * 1024; // before resizing
-
-/** Resize to at most BANNER_MAX_WIDTH wide and re-encode (WebP, JPEG fallback) to keep banners light on mobile data. */
-async function prepareImage(file: File): Promise<{ blob: Blob; ext: "webp" | "jpg" }> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, BANNER_MAX_WIDTH / bitmap.width);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const encode = (type: string) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, 0.85));
-  const webp = await encode("image/webp");
-  if (webp && webp.type === "image/webp") return { blob: webp, ext: "webp" };
-  const jpeg = await encode("image/jpeg");
-  if (!jpeg) throw new Error("encode_failed");
-  return { blob: jpeg, ext: "jpg" };
-}
+import { IMAGE_ACCEPT, uploadImage } from "./image-upload";
 
 export function BannerPicker({
   formId,
@@ -59,31 +32,19 @@ export function BannerPicker({
   const url = bannerUrl(path);
 
   async function upload(file: File) {
-    if (!ACCEPT.includes(file.type)) return void toast.error(t("wrongType"));
-    if (file.size > RAW_LIMIT) return void toast.error(t("tooLarge"));
     setUploading(true);
-    try {
-      const { blob, ext } = await prepareImage(file);
-      if (blob.size > BANNER_MAX_UPLOAD_BYTES) return void toast.error(t("tooLarge"));
-      const objectPath = `${formId}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await createClient()
-        .storage.from(BANNER_BUCKET)
-        .upload(objectPath, blob, { contentType: blob.type, cacheControl: "31536000", upsert: false });
-      if (error) throw error;
-      onChange({ banner_path: objectPath });
-    } catch {
-      toast.error(t("uploadFailed"));
-    } finally {
-      setUploading(false);
-      if (input.current) input.current.value = "";
-    }
+    const res = await uploadImage(formId, file);
+    setUploading(false);
+    if (input.current) input.current.value = "";
+    if ("error" in res) toast.error(t(res.error));
+    else onChange({ banner_path: res.path });
   }
 
   const fileInput = (
     <input
       ref={input}
       type="file"
-      accept={ACCEPT.join(",")}
+      accept={IMAGE_ACCEPT.join(",")}
       className="sr-only"
       tabIndex={-1}
       aria-hidden

@@ -522,7 +522,8 @@
       "category_required": "Choose a category.",
       "no_questions": "Add at least one question.",
       "question_untitled": "Every question needs a title.",
-      "choice_needs_options": "Choice questions need at least 2 options."
+      "choice_needs_options": "Choice questions need at least 2 options.",
+      "image_missing": "Every image block needs a picture."
     },
     "publishPending": "You can publish once a secretary approves your account.",
     "shareTitle": "Your form is live",
@@ -584,7 +585,25 @@
     "sectionDescription": "Description (optional)",
     "dragSection": "Drag to move the section that starts page {page}",
     "deleteSection": "Remove the page break before page {page}",
-    "removeSection": "Remove page break"
+    "removeSection": "Remove page break",
+    "addImage": "Add image",
+    "image": {
+      "add": "Add image",
+      "addToQuestion": "Add image to question",
+      "hint": "JPG, PNG or WebP",
+      "uploading": "Uploading…",
+      "change": "Change",
+      "remove": "Remove",
+      "alt": "Image description for screen readers",
+      "altPlaceholder": "Describe the image (optional, for screen readers)",
+      "altHint": "Read aloud to people who can’t see the image. Describe what it shows.",
+      "block": "Image",
+      "titlePlaceholder": "Image title (optional)",
+      "drag": "Drag to move the image",
+      "duplicate": "Duplicate image",
+      "delete": "Delete image",
+      "missing": "Add a picture or delete this image block."
+    }
   },
   "respond": {
     "requiredNote": "Indicates required question",

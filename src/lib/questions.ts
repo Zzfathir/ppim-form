@@ -11,11 +11,17 @@ export const QUESTION_TYPES = [
   "scale",
   "date",
   "section",
+  "image",
 ] as const satisfies readonly QuestionType[];
 
-/** A "section" item starts a new page; it is layout, never answered. */
-export function isSection(q: { type: QuestionType }): boolean {
-  return q.type === "section";
+/**
+ * Layout items are shown to respondents but never answered: a "section" starts
+ * a new page, an "image" shows a picture between questions.
+ */
+export const LAYOUT_TYPES: readonly QuestionType[] = ["section", "image"];
+
+export function isAnswerable(q: { type: QuestionType }): boolean {
+  return !LAYOUT_TYPES.includes(q.type);
 }
 
 export const CHOICE_TYPES: readonly QuestionType[] = ["single_choice", "multiple_choice", "dropdown"];
@@ -33,6 +39,9 @@ export type QuestionSettings = {
   max_label?: string;
   /** Choice types: show an "Other" option with free text. */
   allow_other?: boolean;
+  /** Any item: a picture ("<form or template id>/<file>" in the form-banners bucket) and its text for screen readers. */
+  image_path?: string;
+  image_alt?: string;
 };
 
 /** Shape of a question inside `templates.questions` (a `questions` row without ids). */

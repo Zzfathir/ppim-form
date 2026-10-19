@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BANNER_STYLES } from "@/lib/forms/banner";
+import { BANNER_STYLES, IMAGE_PATH_RE } from "@/lib/forms/banner";
 import { DEFAULT_SCALE, QUESTION_TYPES, type QuestionSettings, type QuestionType, type TemplateQuestion } from "@/lib/questions";
 
 export const LIMITS = {
@@ -12,6 +12,7 @@ export const LIMITS = {
   questions: 200,
   confirmation: 2000,
   scaleLabel: 100,
+  imageAlt: 300,
 } as const;
 
 /** Scale bounds follow Google Forms: start at 0 or 1, end between 2 and 10. */
@@ -25,6 +26,8 @@ const settingsSchema = z
     min_label: z.string().max(LIMITS.scaleLabel).optional(),
     max_label: z.string().max(LIMITS.scaleLabel).optional(),
     allow_other: z.boolean().optional(),
+    image_path: z.string().regex(IMAGE_PATH_RE).optional(),
+    image_alt: z.string().max(LIMITS.imageAlt).optional(),
   })
   .strict();
 
@@ -49,10 +52,7 @@ export const draftFormSchema = z.object({
   collect_name: z.boolean(),
   name_required: z.boolean(),
   confirmation_message: z.string().max(LIMITS.confirmation).nullable(),
-  banner_path: z
-    .string()
-    .regex(/^[0-9a-f-]{36}\/[A-Za-z0-9._-]{1,100}$/)
-    .nullable(),
+  banner_path: z.string().regex(IMAGE_PATH_RE).nullable(),
   banner_style: z.enum(BANNER_STYLES),
 });
 
@@ -83,6 +83,9 @@ export function convertQuestion(q: DraftQuestion, type: QuestionType, defaultOpt
     if (q.settings.min_label) settings.min_label = q.settings.min_label;
     if (q.settings.max_label) settings.max_label = q.settings.max_label;
   }
+  // The question's image works with every answer type.
+  if (q.settings.image_path) settings.image_path = q.settings.image_path;
+  if (q.settings.image_alt) settings.image_alt = q.settings.image_alt;
   return { ...q, type, options, settings };
 }
 
