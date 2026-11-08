@@ -7,23 +7,106 @@ which forms. Specs: [`spec/PPI_Form_PRD.md`](spec/PPI_Form_PRD.md) and
 Stack: Next.js 16 (App Router, TypeScript) · Tailwind CSS 4 + shadcn/ui · Supabase (Postgres, Google OAuth, RLS) ·
 next-intl (EN default, ID) · Vitest.
 
-## Local development
+## How to run the project locally
 
-Requirements: Node 20.9+, Docker Desktop (running).
+Locally the app uses a **local Supabase** that runs in Docker on your computer. No Supabase account is needed for
+development; a cloud project is only needed for deployment (see *Cloud setup*).
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org) 20.9 or newer (`node -v`)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/), **started** and running before the database steps
+- Git
+- A Google OAuth client (ID + secret) for signing in, see step 4. The public form pages work without it.
+
+### First-time setup
+
+**1. Clone and install**
 
 ```bash
+git clone https://github.com/Zzfathir/ppim-form.git
+cd ppim-form
 npm install
-npm run db:start      # starts local Supabase in Docker, applies supabase/migrations
-cp .env.example .env.local   # then fill in values from `npx supabase status` (see below)
-npm run db:seed:dev   # departments (spec/seed/departments.json), chapters, categories, templates + sample data
+```
+
+**2. Start the local database** (first run downloads the Supabase Docker images, which takes a few minutes)
+
+```bash
+npm run db:start
+```
+
+This starts Postgres, Auth, Storage and Studio in Docker and applies every migration in `supabase/migrations`.
+When it finishes it prints the local URLs and keys. Show them again any time with `npx supabase status`.
+
+**3. Create `.env.local`**
+
+```bash
+cp .env.example .env.local
+```
+
+Fill it in with the values from `npx supabase status`:
+
+| `.env.local` variable | Value |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `API_URL` (normally `http://127.0.0.1:54321`) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `PUBLISHABLE_KEY` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `SECRET_KEY` |
+| `SUPERADMIN_EMAILS` | Your Google email (becomes superadmin on first sign-in) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` |
+| `GOOGLE_*` | Leave empty unless you want Google Sheets sync (see below) |
+
+**4. Set up Google sign-in** (the app only signs in with Google)
+
+```bash
+cp supabase/.env.example supabase/.env
+```
+
+- Put your Google OAuth client ID and secret in `supabase/.env`.
+- In Google Cloud → *Credentials* → your OAuth client, add:
+  - Authorized JavaScript origin: `http://localhost:3000`
+  - Authorized redirect URI: `http://127.0.0.1:54321/auth/v1/callback`
+- Restart the database so it picks up the keys: `npm run db:stop && npm run db:start`
+
+**5. Seed the database**
+
+```bash
+npm run db:seed:dev
+```
+
+This adds departments (from `spec/seed/departments.json`), chapters, categories, templates, and sample admins,
+forms and responses. For base data only, use `npm run db:seed`.
+
+**6. Start the app**
+
+```bash
+npm run dev
+```
+
+Open <http://localhost:3000> and sign in with Google using the email from `SUPERADMIN_EMAILS`. `/admin` should open.
+Supabase Studio (browse tables, no login) is at <http://127.0.0.1:54323>.
+
+### Every day after that
+
+```bash
+# 1. Start Docker Desktop and wait until it says "running"
+npm run db:start      # data is kept between restarts
 npm run dev           # http://localhost:3000
 ```
 
-For local `.env.local`, take `API_URL`, `PUBLISHABLE_KEY` and `SECRET_KEY` from `npx supabase status`.
+To stop: press `Ctrl+C` in the `npm run dev` terminal, then run `npm run db:stop`.
 
-**Google sign-in locally:** put your Google OAuth client ID and secret in `supabase/.env` (copy from
-`supabase/.env.example`). Add `http://127.0.0.1:54321/auth/v1/callback` as an authorized redirect URI in Google
-Cloud, then restart with `npm run db:stop && npm run db:start`.
+### Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `failed to connect to the docker API ... dockerDesktopLinuxEngine` | Docker Desktop isn't running. Start it, wait until it's ready, then retry. |
+| Sign-in fails or returns to `/login` | Check `supabase/.env` values and the redirect URI `http://127.0.0.1:54321/auth/v1/callback` in Google Cloud, then `npm run db:stop && npm run db:start`. |
+| You signed in but have no admin access | Your email isn't in `SUPERADMIN_EMAILS` in `.env.local`. Add it, restart `npm run dev`, then sign in again. |
+| Port 3000 is already in use | Run `npm run dev -- --port 3001` and set `NEXT_PUBLIC_APP_URL` to match. |
+| Empty dashboard / no departments | Run `npm run db:seed:dev`. |
+| Database is in a bad state | Run `npm run db:reset`. **This erases all local data** and seeds it again. |
+
+### Scripts
 
 | Script | What it does |
 |---|---|
